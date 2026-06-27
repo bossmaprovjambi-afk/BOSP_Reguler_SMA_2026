@@ -47,12 +47,10 @@
       <div class="card bg-white dark:bg-slate-800"><p class="text-slate-500 dark:text-slate-400 text-sm">% Selesai</p><p id="persen" class="text-4xl font-bold text-blue-600 dark:text-blue-400">0%</p></div>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-4 mb-4">
-      <div class="card bg-white dark:bg-slate-800 flex-grow"><input id="searchBox" type="text" placeholder="Cari NPSN, Nama Sekolah, atau Kabupaten..." class="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 placeholder-slate-400 dark:placeholder-slate-500"></div>
-      <button id="waBlastBtn" class="card bg-green-600 hover:bg-green-700 text-white font-bold p-3 rounded-lg shadow-md transition flex items-center justify-center">🚀 WA Blast</button>
-    </div>
+    <!-- UDAH GUE BALIKIN: CUMA SEARCH DOANG -->
+    <div class="card bg-white dark:bg-slate-800 mb-4"><input id="searchBox" type="text" placeholder="Cari NPSN, Nama Sekolah, atau Kabupaten..." class="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 placeholder-slate-400 dark:placeholder-slate-500"></div>
 
-    <!-- LAYAR BAWAH UDAH GUE NAIKIN: 380px -> 340px -->
+    <!-- LAYAR BAWAH TETEP 340px -->
     <div class="card bg-white dark:bg-slate-800 overflow-x-auto max-h-[calc(100vh-340px)] overflow-y-auto my-2">
       <table class="w-full text-sm"><thead><tr class="text-left text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
         <th class="p-3">No</th><th class="p-3">NPSN</th><th class="p-3">Nama Sekolah</th><th class="p-3">Status</th><th class="p-3">Kabupaten</th>
@@ -84,11 +82,43 @@
     const tbody = document.getElementById('tabelBody');
     if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="19" class="p-6 text-center">Data tidak ditemukan</td></tr>`; return; }
     tbody.innerHTML = '';
+
+    const sekarang = new Date();
+    const bulanSekarangIndex = sekarang.getMonth(); // 0=Jan, 9=Okt
+    const bulanYangHarusSudah = BULAN.slice(0, bulanSekarangIndex); // Jan s/d bulan kemarin
+
     data.forEach((row, i) => {
       const npsn = get(row, 'NPSN'); const nama = get(row, 'Nama Sekolah'); const jenis = get(row, 'Status'); const kab = get(row, 'Kabupaten'); const noWa = get(row, 'No HP Kepala Sekolah');
       let sudahBulan = 0;
-      const iconBulan = BULAN.map(b => { const val = get(row, b).toUpperCase().trim(); if(val === 'TRUE' || val === '1' || val.includes('SUDAH')) { sudahBulan++; return `<td class="bulan-icon text-green-600 dark:text-green-400" title="${b}: SUDAH KIRIM">✅</td>`; } else { return `<td class="bulan-icon text-slate-400 dark:text-slate-600" title="${b}: BELUM KIRIM">⏳</td>`; } }).join('');
-      const waLink = noWa? `https://wa.me/62${noWa.replace(/\D/g,'').replace(/^0/, '')}?text=Halo ${nama}, Progress BOSP 2026 Bapak/Ibu baru ${sudahBulan}/12 bulan. Mohon segera dilengkapi.` : '#';
+
+      const iconBulan = BULAN.map(b => {
+        const val = get(row, b).toUpperCase().trim();
+        if(val === 'TRUE' || val === '1' || val.includes('SUDAH')) {
+          sudahBulan++;
+          return `<td class="bulan-icon text-green-600 dark:text-green-400" title="${b}: SUDAH KIRIM">✅</td>`;
+        } else {
+          return `<td class="bulan-icon text-slate-400 dark:text-slate-600" title="${b}: BELUM KIRIM">⏳</td>`;
+        }
+      }).join('');
+
+      // LOGIKA PINTER: BUAT PESAN WA CUMA BULAN YG LEWAT
+      let waLink = '#';
+      if(noWa) {
+        const bulanBelum = bulanYangHarusSudah.filter(b => {
+          const v = get(row, b).toUpperCase().trim();
+          return!(v==='TRUE'||v==='1'||v.includes('SUDAH'));
+        });
+
+        let pesan = `Halo ${nama}, ini dari Dinas Pendidikan Provinsi Jambi.`;
+        if(bulanBelum.length > 0) {
+          const listBulan = bulanBelum.join(', ');
+          pesan += `\n\nUntuk Laporan BOSP 2026, s/d bulan ${BULAN[bulanSekarangIndex-1]} masih ada yg belum Bapak/Ibu kirim ya: ${listBulan}.\n\nMohon segera dilengkapi agar tidak menghambat penyaluran dana. Terima kasih.`;
+        } else {
+          pesan += `\n\nAlhamdulillah, Laporan BOSP 2026 Bapak/Ibu s/d bulan ${BULAN[bulanSekarangIndex-1]} sudah lengkap. Terima kasih.`;
+        }
+        waLink = `https://wa.me/62${noWa.replace(/\D/g,'').replace(/^0/, '')}?text=${encodeURIComponent(pesan)}`;
+      }
+
       tbody.innerHTML += `<tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3">${i + 1}</td><td class="p-3">${npsn}</td><td class="p-3 font-medium whitespace-nowrap">${nama}</td><td class="p-3">${jenis}</td><td class="p-3 whitespace-nowrap">${kab}</td>${iconBulan}<td class="p-3 font-bold text-center">${sudahBulan}/12</td><td class="p-3">${noWa? `<a href="${waLink}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-xs">Chat</a>` : '-'}</td></tr>`;
     });
   }
@@ -129,39 +159,6 @@
   });
 
   loadData();
-
-  /* === SCRIPT BARU: WA BLAST CUMA BULAN LEWAT === */
-  document.getElementById('waBlastBtn').addEventListener('click', () => {
-    const sekarang = new Date();
-    const bulanSekarangIndex = sekarang.getMonth(); // 0=Jan, 9=Okt
-    const bulanYangHarusSudah = BULAN.slice(0, bulanSekarangIndex); // Ambil Jan s/d bulan kemarin
-
-    const dataBelum = semuaData.filter(s => {
-      const adaYangBolong = bulanYangHarusSudah.some(b => {
-        const v = get(s, b).toUpperCase().trim();
-        return!(v==='TRUE'||v==='1'||v.includes('SUDAH'));
-      });
-      return adaYangBolong && get(s, 'No HP Kepala Sekolah');
-    });
-
-    if(dataBelum.length === 0) { alert(`Alhamdulillah, semua sekolah sudah lengkap sampai bulan ${BULAN[bulanSekarangIndex-1]} ✅`); return; }
-
-    if(confirm(`Yakin mau buka ${dataBelum.length} tab WA sekaligus?\n\nHanya nagih sampai bulan ${BULAN[bulanSekarangIndex-1]}.`)) {
-      dataBelum.forEach((s, i) => {
-        const nama = get(s, 'Nama Sekolah');
-        const noWa = get(s, 'No HP Kepala Sekolah').replace(/\D/g,'').replace(/^0/, '');
-        const bulanBelum = bulanYangHarusSudah.filter(b => {
-          const v = get(s, b).toUpperCase().trim();
-          return!(v==='TRUE'||v==='1'||v.includes('SUDAH'));
-        });
-        if(bulanBelum.length === 0) return;
-        const listBulan = bulanBelum.join(', ');
-        const pesan = `Halo ${nama}, ini dari Dinas Pendidikan Provinsi Jambi.\n\nUntuk Laporan BOSP 2026, s/d bulan ${BULAN[bulanSekarangIndex-1]} masih ada yg belum Bapak/Ibu kirim ya: ${listBulan}.\n\nMohon segera dilengkapi agar tidak menghambat penyaluran dana. Terima kasih.`;
-        const link = `https://wa.me/62${noWa}?text=${encodeURIComponent(pesan)}`;
-        setTimeout(() => { window.open(link, '_blank'); }, i * 500);
-      });
-    }
-  });
 
   window.addEventListener('load', () => {
     const loadingScreen = document.getElementById('loading-screen');
