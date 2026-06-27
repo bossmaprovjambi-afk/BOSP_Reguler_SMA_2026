@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <title>Dashboard Laporan BOSP Reguler SMA Provinsi Jambi Tahun 2026</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/paparse.min.js"></script> <!-- UDAH BENER INI -->
 <script>tailwind.config = { darkMode: 'class' }</script>
-<style>.card { border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); }thead th { position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2); }.bulan-icon { font-size: 14px; text-align: center; width: 24px; }</style>
+<style>
+.card { border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); }
+  thead th { position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2); }
+.bulan-icon { font-size: 14px; text-align: center; width: 24px; }
+</style>
 </head>
 <body class="p-4 md:p-8 bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
 <div class="max-w-[1600px] mx-auto">
@@ -32,10 +35,23 @@
 <script>
   const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=147011660&single=true&output=csv'; 
   let semuaData = []; const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','Nopember','Desember'];
+  
   const themeToggleBtn = document.getElementById('theme-toggle'); const themeIcon = document.getElementById('theme-icon'); const html = document.documentElement;
   if (localStorage.getItem('theme') === 'dark') { html.classList.add('dark'); themeIcon.textContent = '☀️'; } else { themeIcon.textContent = '🌙'; }
   themeToggleBtn.addEventListener('click', () => { html.classList.toggle('dark'); if (html.classList.contains('dark')) { localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; } else { localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } });
+
+  // KUNCI: FUNGSI CSV PARSER MANUAL ANTI KOMA
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    const headers = lines.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/^"|"$/g, '').trim());
+    return lines.map(line => {
+      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+      return headers.reduce((obj, header, i) => { obj[header] = values[i] || ''; return obj; }, {});
+    });
+  }
+
   function get(row, namaKolom) { const key = Object.keys(row).find(k => k.trim().toLowerCase() === namaKolom.trim().toLowerCase()); return row[key] || ''; }
+
   function renderTabel(data) {
     const tbody = document.getElementById('tabelBody');
     if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="19" class="p-6 text-center">Data tidak ditemukan</td></tr>`; return; }
@@ -48,20 +64,24 @@
       tbody.innerHTML += `<tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"><td class="p-3">${i + 1}</td><td class="p-3">${npsn}</td><td class="p-3 font-medium whitespace-nowrap">${nama}</td><td class="p-3">${jenis}</td><td class="p-3 whitespace-nowrap">${kab}</td>${iconBulan}<td class="p-3 font-bold text-center">${sudahBulan}/12</td><td class="p-3">${noWa? `<a href="${waLink}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-xs">Chat</a>` : '-'}</td></tr>`;
     });
   }
+  
   async function loadData() {
     try {
       const res = await fetch(SHEET_CSV_URL); if(!res.ok) throw new Error('Link CSV Gagal');
       const csvText = await res.text();
-      Papa.parse(csvText, {
-        header: true, skipEmptyLines: true,
-        complete: function(results) {
-          semuaData = results.data;
-          const total = semuaData.length; const sudah = semuaData.filter(s => BULAN.filter(b => { const v=get(s,b).toUpperCase().trim(); return v==='TRUE'||v==='1'||v.includes('SUDAH'); }).length === 12).length;
-          const belum = total - sudah; const persen = total > 0? ((sudah / total) * 100).toFixed(1) : 0;
-          document.getElementById('total').innerText = total; document.getElementById('sudah').innerText = sudah; document.getElementById('belum').innerText = belum; document.getElementById('persen').innerText = persen + '%';
-          document.getElementById('lastUpdate').innerText = new Date().toLocaleString('id-ID'); renderTabel(semuaData);
-        }, error: (e) => { throw e; }
-      });
+      semuaData = parseCSV(csvText); // PAKE PARSER BUATAN SENDIRI
+      
+      const total = semuaData.length; 
+      const sudah = semuaData.filter(s => BULAN.filter(b => { const v=get(s,b).toUpperCase().trim(); return v==='TRUE'||v==='1'||v.includes('SUDAH'); }).length === 12).length;
+      const belum = total - sudah; 
+      const persen = total > 0? ((sudah / total) * 100).toFixed(1) : 0;
+      
+      document.getElementById('total').innerText = total; 
+      document.getElementById('sudah').innerText = sudah; 
+      document.getElementById('belum').innerText = belum; 
+      document.getElementById('persen').innerText = persen + '%';
+      document.getElementById('lastUpdate').innerText = new Date().toLocaleString('id-ID'); 
+      renderTabel(semuaData);
     } catch(e) { 
       console.error(e);
       document.getElementById('tabelBody').innerHTML = `<tr><td colspan="19" class="p-6 text-center text-red-500">Gagal load: ${e.message}</td></tr>`; 
