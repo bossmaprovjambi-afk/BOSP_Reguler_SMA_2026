@@ -12,18 +12,15 @@
   th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
 .status-sudah { background-color: #d1fae5; color: #065f46; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; }
 .status-belum { background-color: #fee2e2; color: #991b1b; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; }
-.row-clickable:hover { background-color: #eff6ff; cursor: pointer; } /* Biar keliatan bisa diklik */
-.modal-bg { background-color: rgba(0,0,0,0.5); }
+.row-clickable:hover { background-color: #eff6ff; cursor: pointer; }
+.row-active { background-color: #dbeafe!important; } /* Baris yang dipilih jadi biru */
 </style>
 </head>
 <body class="p-4 md:p-8">
 
 <div class="max-w-7xl mx-auto">
   <header class="flex flex-col md:flex-row justify-between items-center mb-8">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-800">Dashboard BOSP Jambi 2026</h1>
-      <p class="text-gray-500">Monitoring Laporan Real-Time</p>
-    </div>
+    <div><h1 class="text-3xl font-bold text-gray-800">Dashboard BOSP Jambi 2026</h1><p class="text-gray-500">Monitoring Laporan Real-Time</p></div>
     <button id="refreshBtn" class="mt-4 md:mt-0 bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition">Refresh Data</button>
   </header>
 
@@ -38,54 +35,49 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="card lg:col-span-1"><h3 class="font-bold text-lg mb-4">Progres Laporan</h3><canvas id="statusChart"></canvas></div>
+      
       <div class="card lg:col-span-2">
-        <h3 class="font-bold text-lg mb-4">Data Sekolah - Klik baris untuk detail</h3>
+        <h3 class="font-bold text-lg mb-4">Data Sekolah - Klik untuk lihat detail</h3>
         <input type="text" id="searchInput" placeholder="Cari Nama Sekolah / NPSN..." class="w-full p-2 border rounded-lg mb-4">
-        <div class="overflow-x-auto max-h-96">
-          <table class="w-full text-sm">
-            <thead class="bg-gray-50 sticky top-0"><tr><th>NPSN</th><th>Nama Sekolah</th><th>Kab/Kota</th><th>Status</th></tr></thead>
-            <tbody id="dataTable"></tbody>
-          </table>
-        </div>
+        <div class="overflow-x-auto max-h-80"><table class="w-full text-sm"><thead class="bg-gray-50 sticky top-0"><tr><th>NPSN</th><th>Nama Sekolah</th><th>Kab/Kota</th><th>Status</th></tr></thead><tbody id="dataTable"></tbody></table></div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- MODAL POPUP DETAIL SEKOLAH -->
-<div id="modal" class="fixed inset-0 modal-bg hidden items-center justify-center z-50">
-  <div class="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full m-4 relative">
-    <button id="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
-    <h2 id="modalTitle" class="text-2xl font-bold mb-4 text-gray-800"></h2>
-    <div id="modalBody" class="space-y-3 text-gray-700"></div>
+    <!-- INI KARTU DETAIL VERTIKAL NYA LUR -->
+    <div id="detailCard" class="card mt-6 hidden">
+      <h3 id="detailTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
+      <div id="detailBody" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3"></div>
+    </div>
+
   </div>
 </div>
 
 <script>
   const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?output=csv';
-
+  
   let allData = [];
   let statusChart;
+  let headers = [];
 
   async function fetchData() {
     document.getElementById('loader').classList.remove('hidden');
     document.getElementById('dashboard').classList.add('hidden');
     try {
-      const response = await fetch(SHEET_CSV_URL + '&t=' + new Date().getTime()); // Anti cache
+      const response = await fetch(SHEET_CSV_URL + '&t=' + new Date().getTime());
       const csvText = await response.text();
       const lines = csvText.split('\n');
-      const headers = lines.shift().split(',').map(h => h.toLowerCase().trim().replace(/"/g, ''));
+      headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
 
       allData = lines.map(line => {
         const cols = line.split(',').map(c => c.trim().replace(/"/g, ''));
         let obj = {};
-        headers.forEach((h, i) => obj[h] = cols[i]); // Ambil semua kolom, gak cuma 5
+        headers.forEach((h, i) => obj[h] = cols[i] || '');
         return obj;
-      }).filter(r => r.npsn);
+      }).filter(r => r[headers[0]]);
 
       updateDashboard();
     } catch (error) {
-      alert('Gagal memuat data. Cek Google Sheet udah Public belum lur.');
+      document.getElementById('loader').innerHTML = `<p class="text-red-600 font-bold">Gagal memuat data. Cek Google Sheet udah 'Siapa saja dengan link' belum lur?</p>`;
     } finally {
       document.getElementById('loader').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
@@ -93,8 +85,9 @@
   }
 
   function updateDashboard() {
-    const sudah = allData.filter(d => (d.status || d['status kirim'])?.toUpperCase() === 'SAMA').length;
-    const belum = allData.filter(d => (d.status || d['status kirim'])?.toUpperCase() === 'BELUM SAMA').length;
+    const statusCol = headers.find(h => h.toLowerCase().includes('status'));
+    const sudah = allData.filter(d => d[statusCol]?.toUpperCase() === 'SAMA').length;
+    const belum = allData.filter(d => d[statusCol]?.toUpperCase() === 'BELUM SAMA').length;
     const total = allData.length;
 
     document.getElementById('totalSekolah').innerText = total;
@@ -106,54 +99,67 @@
   }
 
   function renderTable(data) {
+    const npsnCol = headers.find(h => h.toLowerCase().includes('npsn'));
+    const namaCol = headers.find(h => h.toLowerCase().includes('nama'));
+    const kabCol = headers.find(h => h.toLowerCase().includes('kab') || h.toLowerCase().includes('kota'));
+    const statusCol = headers.find(h => h.toLowerCase().includes('status'));
+
     const tbody = document.getElementById('dataTable');
     tbody.innerHTML = data.map(d => `
-      <tr class="row-clickable" onclick='showDetail(${JSON.stringify(d).replace(/'/g, "&#39;")})'>
-        <td>${d.npsn}</td>
-        <td>${d['nama sekolah'] || d.nama}</td>
-        <td>${d['kab/kota'] || d.kabkota}</td>
-        <td><span class="${(d.status || d['status kirim'])?.toUpperCase() === 'SAMA'? 'status-sudah' : 'status-belum'}">${d.status || d['status kirim']}</span></td>
+      <tr id="row-${d[npsnCol]}" class="row-clickable" onclick="showDetail('${d[npsnCol]}')">
+        <td>${d[npsnCol]}</td>
+        <td>${d[namaCol]}</td>
+        <td>${d[kabCol]}</td>
+        <td><span class="${d[statusCol]?.toUpperCase() === 'SAMA'? 'status-sudah' : 'status-belum'}">${d[statusCol]}</span></td>
       </tr>
     `).join('');
   }
-
+  
   function renderChart(sudah, belum) {
     const ctx = document.getElementById('statusChart').getContext('2d');
     if(statusChart) statusChart.destroy();
-    statusChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: { labels: ['Sudah Kirim', 'Belum Kirim'], datasets: [{ data: [sudah, belum], backgroundColor: ['#10B981', '#EF4444'] }] },
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } }
-    });
+    statusChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Sudah Kirim', 'Belum Kirim'], datasets: [{ data: [sudah, belum], backgroundColor: ['#10B981', '#EF4444'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } });
   }
 
-  // FUNGSI POPUP
-  function showDetail(data) {
-    document.getElementById('modalTitle').innerText = data['nama sekolah'] || data.nama;
+  // FUNGSI KARTU VERTIKAL
+  function showDetail(npsn) {
+    // 1. Hapus highlight biru dari semua baris
+    document.querySelectorAll('#dataTable tr').forEach(tr => tr.classList.remove('row-active'));
+    // 2. Kasih highlight biru ke baris yang diklik
+    document.getElementById(`row-${npsn}`).classList.add('row-active');
+
+    const npsnCol = headers.find(h => h.toLowerCase().includes('npsn'));
+    const namaCol = headers.find(h => h.toLowerCase().includes('nama'));
+    const data = allData.find(d => d[npsnCol] === npsn);
+    if (!data) return;
+
+    document.getElementById('detailTitle').innerText = `Detail: ${data[namaCol]}`;
+    
     let bodyHTML = '';
-    for (const key in data) {
-      if (data[key]) { // Cuma munculin yang ada isinya
-        bodyHTML += `<div class="flex justify-between border-b pb-2"><span class="font-semibold capitalize">${key.replace(/_/g, ' ')}</span><span>${data[key]}</span></div>`;
+    headers.forEach(key => { // Loop semua kolom jadi vertikal
+      if (data[key]) {
+        bodyHTML += `
+          <div class="border-b pb-2">
+            <p class="text-sm text-gray-500 font-medium capitalize">${key}</p>
+            <p class="text-gray-800 font-semibold">${data[key]}</p>
+          </div>
+        `;
       }
-    }
-    document.getElementById('modalBody').innerHTML = bodyHTML;
-    document.getElementById('modal').classList.remove('hidden');
-    document.getElementById('modal').classList.add('flex');
-  }
-
-  function closeModal() {
-    document.getElementById('modal').classList.add('hidden');
-    document.getElementById('modal').classList.remove('flex');
+    });
+    document.getElementById('detailBody').innerHTML = bodyHTML;
+    document.getElementById('detailCard').classList.remove('hidden'); // Munculin kartunya
+    document.getElementById('detailCard').scrollIntoView({ behavior: 'smooth' }); // Auto scroll ke bawah
   }
 
   document.getElementById('refreshBtn').addEventListener('click', fetchData);
   document.getElementById('searchInput').addEventListener('input', (e) => {
     const search = e.target.value.toLowerCase();
-    const filtered = allData.filter(d => (d['nama sekolah'] || d.nama).toLowerCase().includes(search) || d.npsn.includes(search));
+    const npsnCol = headers.find(h => h.toLowerCase().includes('npsn'));
+    const namaCol = headers.find(h => h.toLowerCase().includes('nama'));
+    const filtered = allData.filter(d => d[namaCol].toLowerCase().includes(search) || d[npsnCol].includes(search));
     renderTable(filtered);
+    document.getElementById('detailCard').classList.add('hidden'); // Sembunyiin detail kalo lagi nyari
   });
-  document.getElementById('closeModal').addEventListener('click', closeModal);
-  document.getElementById('modal').addEventListener('click', (e) => { if(e.target.id === 'modal') closeModal() }); // Klik luar ketutup
 
   fetchData();
 </script>
