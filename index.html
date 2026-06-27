@@ -14,7 +14,7 @@
 .bulan-icon { font-size: 14px; text-align: center; width: 24px; }
   #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a, #1e293b); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.6s ease-out; }
   #loading-screen img { width: 140px; animation: pulse-glow 1.8s infinite ease-in-out; }
-  @keyframes pulse-glow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px #facc15); } 50% { transform: scale(1.15); filter: drop-shadow(0 0 15px #facc15); }
+  @keyframes pulse-glow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px #facc15); } 50% { transform: scale(1.15); filter: drop-shadow(0 0 15px #facc15); } }
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 10px; }
     * { scrollbar-width: thin; scrollbar-color: #475569 transparent; }
@@ -32,9 +32,10 @@
           <h1 id="judulUtama" class="text-2xl md:text-3xl font-bold">Dashboard Laporan BOSP Reguler SMA</h1>
           <p class="text-lg md:text-xl font-semibold text-slate-600 dark:text-slate-300">Provinsi Jambi Tahun 2026</p>
           <p class="text-sm text-slate-500 dark:text-slate-400">Update terakhir: <span id="lastUpdate">Loading...</span></p>
-          <div class="flex gap-2 mt-2"> <!-- DIBUNGKUS FLEX BIAR SEBELAHAN -->
+          <div class="flex flex-wrap gap-2 mt-2">
             <a href="./rekap.html" class="inline-block bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Lihat Rekap Kabupaten</a>
-            <button id="exportBtn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Download</button> <!-- INI TOMBOL BARU -->
+            <button id="exportBtn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Download Excel</button>
+            <a href="./laporan.html" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">📝 BUAT LAPORAN</a>
           </div>
         </div>
       </div>
@@ -63,7 +64,7 @@
 
 <script>
   const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=147011660&single=true&output=csv';
-  let semuaData = []; let dataTertampil = []; 
+  let semuaData = []; let dataTertampil = [];
   const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','Nopember','Desember'];
 
   const themeToggleBtn = document.getElementById('theme-toggle'); const themeIcon = document.getElementById('theme-icon'); const html = document.documentElement;
@@ -81,7 +82,7 @@
   function get(row, namaKolom) { const key = Object.keys(row).find(k => k.trim().toLowerCase() === namaKolom.trim().toLowerCase()); return row[key] || ''; }
 
   function renderTabel(data) {
-    dataTertampil = data; 
+    dataTertampil = data;
     const tbody = document.getElementById('tabelBody');
     if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="19" class="p-6 text-center">Data tidak ditemukan</td></tr>`; return; }
     tbody.innerHTML = '';
@@ -124,17 +125,17 @@
       tbody.innerHTML += `<tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50"><td class="p-3">${i + 1}</td><td class="p-3">${npsn}</td><td class="p-3 font-medium whitespace-nowrap">${nama}</td><td class="p-3">${jenis}</td><td class="p-3 whitespace-nowrap">${kab}</td>${iconBulan}<td class="p-3 font-bold text-center">${sudahBulan}/12</td><td class="p-3">${noWa? `<a href="${waLink}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-xs">Chat</a>` : '-'}</td></tr>`;
     });
   }
-  
+
   function autoFilter() {
     const params = new URLSearchParams(window.location.search);
     const kabFilter = params.get('kab');
     if (kabFilter) {
-      document.getElementById('searchBox').value = kabFilter; 
+      document.getElementById('searchBox').value = kabFilter;
       const hasilFilter = semuaData.filter(d => get(d, 'Kabupaten').toLowerCase() === kabFilter.toLowerCase());
       renderTabel(hasilFilter);
-      document.getElementById('judulUtama').innerHTML += ` <span class="text-lg font-normal text-blue-400">- Filter: ${kabFilter}</span>`; 
+      document.getElementById('judulUtama').innerHTML += ` <span class="text-lg font-normal text-blue-400">- Filter: ${kabFilter}</span>`;
     } else {
-      renderTabel(semuaData); 
+      renderTabel(semuaData);
     }
   }
 
@@ -152,7 +153,7 @@
       document.getElementById('belum').innerText = belum;
       document.getElementById('persen').innerText = persen + '%';
       document.getElementById('lastUpdate').innerText = new Date().toLocaleString('id-ID');
-      autoFilter(); 
+      autoFilter();
     } catch(e) {
       console.error(e);
       document.getElementById('tabelBody').innerHTML = `<tr><td colspan="19" class="p-6 text-center text-red-500">Gagal load: ${e.message}</td></tr>`;
@@ -177,7 +178,7 @@
     const dataExcel = dataTertampil.map((row, i) => {
       let sudahBulan = 0;
       BULAN.forEach(b => { const v=get(row,b).toUpperCase().trim(); if(v==='TRUE'||v==='1'||v.includes('SUDAH')) sudahBulan++; });
-      
+
       const obj = {
         No: i + 1,
         NPSN: get(row, 'NPSN'),
@@ -194,11 +195,11 @@
     const ws = XLSX.utils.json_to_sheet(dataExcel);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Data BOSP");
-    
+
     const params = new URLSearchParams(window.location.search);
     const kabFilter = params.get('kab');
     const namaFile = kabFilter? `Laporan_BOSP_${kabFilter.replace(/ /g, '_')}.xlsx` : `Laporan_BOSP_Semua_Sekolah.xlsx`;
-    
+
     XLSX.writeFile(wb, namaFile);
   });
 
