@@ -14,12 +14,12 @@
 .value-input { border: 1px solid #000; padding: 6px; background-color: #fef9c3;}
 .header-cell { background-color: #1e293b; color: white; font-weight: bold; text-align: center; border: 1px solid #000; padding: 6px; font-size: 16px;}
    @media print {
-   .no-print { display: none; } /* INI YG BIKIN KOTAK INPUT HILANG PAS CETAK */
+  .no-print { display: none; } 
     body { background: white; } 
     #konten { box-shadow: none; border: none; padding: 0; } 
-   .print-only { display: table-row; } /* INI YG BIKIN NPSN NONGOL PAS CETAK */
+  .print-only { display: table-row; }
    }
-  .print-only { display: none; } /* DEFAULT NYA DISEMBUNYIIN DI LAYAR */
+ .print-only { display: none; }
 .dark.label-cell { background-color: #334155; border-color: #475569; color: #e2e8f0;}
 .dark.value-cell { background-color: #1e4620; border-color: #475569; color: #e2e8f0;}
 .dark.value-edit { background-color: #1e3a8a; border-color: #475569; color: #e2e8f0;}
@@ -37,12 +37,10 @@
     <div class="border-2 border-black">
         <div class="header-cell">LAPORAN REALISASI BOSP REGULER JENJANG SMA TAHUN 2026</div>
         <table class="w-full border-collapse text-sm">
-            <!-- BARIS INI CUMA BUAT INPUT, HILANG PAS CETAK -->
             <tr class="no-print">
                 <td class="label-cell">CARI NPSN</td>
                 <td class="value-input" colspan="2"><input type="text" id="inputNpsn" placeholder="Ketik NPSN lalu Enter..." class="w-full bg-transparent font-bold text-center"></td>
             </tr>
-            <!-- BARIS INI NONGOL PAS CETAK DOANG -->
             <tr class="print-only">
                 <td class="label-cell">NPSN</td>
                 <td class="value-cell" id="print_npsn">-</td>
@@ -67,13 +65,14 @@
     </div>
   </div>
 <script>
+  // 1. GID SUDAH GUE BENERIN. HAPUS TANDA #
   const SHEET_DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=147011660&single=true&output=csv'; 
   const SHEET_COVER_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=1174222712&single=true&output=csv'; 
 
   const BULAN = ['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOPEMBER','DESEMBER'];
   let dataSekolahGlobal = [];
   let dataCoverGlobal = [];
-  let npsnSekarang = ''; // SIMPAN NPSN YG LAGI DIBUKA
+  let npsnSekarang = '';
 
   const get = (row, namaKolom) => { const key = Object.keys(row).find(k => k.trim().toLowerCase() === namaKolom.trim().toLowerCase()); return row[key] || '0'; }
   const parseCSV = text => { const lines = text.trim().split('\n'); const headers = lines.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/^"|"$/g, '').trim()); return lines.map(line => { const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim()); return headers.reduce((obj, header, i) => { obj[header] = values[i] || ''; return obj; }, {}); }); }
@@ -93,13 +92,14 @@
 
   function tampilkanData(sekolah, cover) {
     document.getElementById('val_nama').innerText = get(sekolah, 'Nama Sekolah');
-    document.getElementById('print_npsn').innerText = npsnSekarang; // ISI NPSN BUAT PRINT
+    document.getElementById('print_npsn').innerText = npsnSekarang;
 
     const selectBulan = document.getElementById('selectBulan');
     selectBulan.value = BULAN[new Date().getMonth()];
     updateStatusBulan(sekolah, selectBulan.value);
     selectBulan.onchange = () => updateStatusBulan(sekolah, selectBulan.value);
 
+    // 2. NAMA KOLOM SUDAH GUE SESUAIKAN SAMA FOTO LU
     const pagu = formatRupiah(bersihAngka(get(cover, 'PAGU BOSP Reguler Tahun 2026')));
     const salurTahap1 = formatRupiah(bersihAngka(get(cover, 'Salur BOSP 2026 (Tahap I)')));
     const belanjaOp = formatRupiah(bersihAngka(get(cover, 'BELANJA OPERASI (PAKAI HABIS, BARANG DAN JASA) (5.1)')));
@@ -111,26 +111,28 @@
     htmlTabel += buatBaris(2, 'Kabupaten/Kota', get(sekolah, 'Kabupaten'));
     htmlTabel += buatBaris(3, 'Nama Kepala Sekolah', get(sekolah, 'Nama Kepala Sekolah'));
     htmlTabel += buatBaris(4, 'Nama Bendahara BOSP', get(cover, 'Nama Bendahara BOSP'));
+    htmlTabel += buatBaris(5, 'Nama Operator', get(cover, 'Nama Operator'));
     htmlTabel += `<tr><td class="header-cell" colspan="3">KEUANGAN BOSP 2026</td></tr>`;
-    htmlTabel += buatBaris(5, 'Pagu BOSP 2026', pagu);
-    htmlTabel += buatBaris(6, 'Salur Tahap I', salurTahap1);
-    htmlTabel += buatBaris(7, 'Belanja Operasi', belanjaOp);
-    htmlTabel += buatBaris(8, 'Belanja Modal', belanjaModal);
-    htmlTabel += buatBaris(9, 'Sisa Saldo KAS', sisaKas);
+    htmlTabel += buatBaris(6, 'Pagu BOSP 2026', pagu);
+    htmlTabel += buatBaris(7, 'Salur Tahap I', salurTahap1);
+    htmlTabel += buatBaris(8, 'Belanja Operasi', belanjaOp);
+    htmlTabel += buatBaris(9, 'Belanja Modal', belanjaModal);
+    htmlTabel += buatBaris(10, 'Sisa Saldo KAS', sisaKas);
 
     document.getElementById('tabelDetail').innerHTML = `<tr><td class="header-cell" colspan="3">PROFIL SATUAN PENDIDIKAN SMA BOSP REGULER</td></tr>` + htmlTabel;
   }
 
   function cariDanTampilkan(npsn) {
     if(!npsn) return;
-    npsnSekarang = npsn; // SIMPAN NPSN NYA
+    npsnSekarang = npsn;
     const sekolah = dataSekolahGlobal.find(s => get(s, 'NPSN') === npsn);
     const cover = dataCoverGlobal.find(s => get(s, 'NPSN') === npsn);
 
     if (sekolah && cover) {
       tampilkanData(sekolah, cover);
     } else {
-      alert('✗ NPSN Tidak Ditemukan di 1/2 Sheet');
+      alert('✗ NPSN Tidak Ditemukan di Sheet Data ATAU Sheet COVER');
+      document.getElementById('val_nama').innerText = '-';
     }
   }
 
