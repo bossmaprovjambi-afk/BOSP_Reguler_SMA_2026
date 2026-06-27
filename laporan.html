@@ -8,31 +8,32 @@
   <script>tailwind.config = { darkMode: 'class' }</script>
   <style>
     body { font-family: 'Arial', sans-serif; font-size: 14px; }
-   .label-cell { background-color: #e2e8f0; font-weight: 600; border: 1px solid #000; padding: 8px; width: 28%;}
-   .value-cell { border: 1px solid #000; padding: 8px; background-color: #dcfce7; font-weight: 500;}
-   .value-edit { border: 1px solid #000; padding: 8px; background-color: #dbeafe;}
-   .value-input { border: 1px solid #000; padding: 8px; background-color: #fef9c3;}
-   .header-cell { background-color: #1e293b; color: white; font-weight: bold; text-align: center; border: 1px solid #000; padding: 10px; font-size: 18px;}
+.label-cell { background-color: #e2e8f0; font-weight: 600; border: 1px solid #000; padding: 8px; width: 28%;}
+.value-cell { border: 1px solid #000; padding: 8px; background-color: #dcfce7; font-weight: 500;}
+.value-edit { border: 1px solid #000; padding: 8px; background-color: #dbeafe;}
+.value-input { border: 1px solid #000; padding: 8px; background-color: #fef9c3;}
+.header-cell { background-color: #1e293b; color: white; font-weight: bold; text-align: center; border: 1px solid #000; padding: 10px; font-size: 18px;}
     select, input { font-weight: 700; font-size: 15px; }
     @media print {.no-print { display: none; } body { background: white; } #konten { box-shadow: none; border: none; padding: 0; max-width: 100%;}.print-only { display: table-row; }}
-   .print-only { display: none; }
-   .dark.label-cell { background-color: #334155; border-color: #475569; color: #e2e8f0;}
-   .dark.value-cell { background-color: #1e4620; border-color: #475569; color: #e2e8f0;}
-   .dark.value-edit { background-color: #1e3a8a; border-color: #475569; color: #e2e8f0;}
-   .dark.value-input { background-color: #713f12; border-color: #475569; color: #e2e8f0;}
-   .dark.header-cell { background-color: #0f172a; border-color: #475569;}
+.print-only { display: none; }
+.dark.label-cell { background-color: #334155; border-color: #475569; color: #e2e8f0;}
+.dark.value-cell { background-color: #1e4620; border-color: #475569; color: #e2e8f0;}
+.dark.value-edit { background-color: #1e3a8a; border-color: #475569; color: #e2e8f0;}
+.dark.value-input { background-color: #713f12; border-color: #475569; color: #e2e8f0;}
+.dark.header-cell { background-color: #0f172a; border-color: #475569;}
   </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 p-4 md:p-8">
-  <div id="konten" class="max-w-6xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg border-2 border-black"> <!-- DIBESARIN JADI 6XL -->
+  <div id="konten" class="max-w-6xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg border-2 border-black">
     <div class="flex justify-between items-center mb-4 no-print">
         <a href="./index.html" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">← Kembali ke Dashboard</a>
         <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold">🖨️ Print PDF</button>
     </div>
+    <div id="statusLoad" class="text-center text-yellow-600 font-bold mb-2 no-print">Status: Loading Data...</div>
     <div class="border-2 border-black">
         <div class="header-cell">LAPORAN REALISASI BOSP REGULER JENJANG SMA TAHUN 2026</div>
         <table class="w-full border-collapse text-sm">
-            <tr class="no-print"><td class="label-cell">CARI NPSN</td><td class="value-input" colspan="2"><input type="text" id="inputNpsn" placeholder="Ketik NPSN lalu Enter..." class="w-full bg-transparent text-center"></td></tr>
+            <tr class="no-print"><td class="label-cell">CARI NPSN</td><td class="value-input" colspan="2"><input type="text" id="inputNpsn" placeholder="Ketik NPSN lalu Enter..." class="w-full bg-transparent text-center" disabled></td></tr>
             <tr class="print-only"><td class="label-cell">NPSN</td><td class="value-cell" id="print_npsn">-</td><td class="value-cell text-green-700 font-bold">✓ NPSN Valid</td></tr>
             <tr><td class="label-cell">NAMA SATUAN PENDIDIK</td><td class="value-cell" id="val_nama" colspan="2">-</td></tr>
             <tr><td class="label-cell">Status Sekolah</td><td class="value-cell" id="val_status" colspan="2">-</td></tr>
@@ -51,10 +52,11 @@
     </div>
   </div>
 <script>
+  // UDAH GUE BENERIN. GAK ADA TANDA # LAGI
   const SHEET_DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=147011660&single=true&output=csv';
   const SHEET_COVER_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=1174222712&single=true&output=csv';
   const BULAN = ['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOPEMBER','DESEMBER'];
-  const HELPDESK = ['Shella Lovia, S.Pd', 'MISLANO1', 'Admin 3'];
+  const HELPDESK = ['Shella Lovia, S.Pd', 'MISLANO1'];
 
   let dataSekolahGlobal = []; let dataCoverGlobal = []; let sekolahSekarang = null; let coverSekarang = null;
 
@@ -72,50 +74,54 @@
     else { statusEl.innerHTML = '✗ Belum Kirim'; statusEl.className = 'value-cell text-red-700 font-bold'; }
   }
 
-  function tampilkanSemuaData() { // FUNGSI BARU: AUTO ISI SEMUA
-    if(!sekolahSekarang ||!coverSekarang) return;
-    
+  function tampilkanSemuaData() {
     document.getElementById('print_npsn').innerText = get(sekolahSekarang, 'NPSN');
     document.getElementById('val_nama').innerText = get(sekolahSekarang, 'Nama Sekolah');
     document.getElementById('val_status').innerText = get(sekolahSekarang, 'Status');
     document.getElementById('val_kab').innerText = get(sekolahSekarang, 'Kabupaten');
     document.getElementById('val_kepsek').innerText = get(sekolahSekarang, 'Nama Kepala Sekolah');
     document.getElementById('val_bendahara').innerText = get(coverSekarang, 'Nama Bendahara BOSP');
-    
     document.getElementById('val_pagu').innerText = formatRupiah(bersihAngka(get(coverSekarang, 'PAGU BOSP Reguler Tahun 2026')));
     document.getElementById('val_salur1').innerText = formatRupiah(bersihAngka(get(coverSekarang, 'Salur BOSP 2026 (Tahap I)')));
     document.getElementById('val_op').innerText = formatRupiah(bersihAngka(get(coverSekarang, 'BELANJA OPERASI (PAKAI HABIS, BARANG DAN JASA) (5.1)')));
     document.getElementById('val_modal').innerText = formatRupiah(bersihAngka(get(coverSekarang, 'BELANJA MODAL (5.2)')));
     document.getElementById('val_kas').innerText = formatRupiah(bersihAngka(get(coverSekarang, 'Sisa Saldo KAS Tunai Keseluruhan Dana BOSP')));
-
-    updateStatusBulan(); // Isi status bulan terakhir
+    updateStatusBulan();
   }
 
   function cariDanTampilkan(npsn) {
-    if(!npsn) return alert('Isi NPSN dulu lur');
     sekolahSekarang = dataSekolahGlobal.find(s => get(s, 'NPSN') === npsn);
     coverSekarang = dataCoverGlobal.find(s => get(s, 'NPSN') === npsn);
-
-    if (sekolahSekarang && coverSekarang) {
-      tampilkanSemuaData(); // LANGSUNG ISI SEMUA
-    } else {
-      alert(`✗ NPSN ${npsn} Tidak Ditemukan di Sheet DATA atau Sheet COVER. Cek lagi NPSN nya.`);
-      document.getElementById('val_nama').innerText = '-'; // Reset
-    }
+    if (sekolahSekarang && coverSekarang) { tampilkanSemuaData(); }
+    else { alert(`✗ NPSN ${npsn} Tidak Ditemukan di Sheet DATA atau Sheet COVER.`); }
   }
 
   async function init() {
+    const statusEl = document.getElementById('statusLoad');
     try {
-      const [resData, resCover] = await Promise.all([fetch(SHEET_DATA_URL), fetch(SHEET_COVER_URL)]);
-      if(!resData.ok ||!resCover.ok) throw new Error('Gagal load Sheet. Cek GID & Link Publish');
+      statusEl.innerText = 'Status: Mengambil Sheet DATA...';
+      const resData = await fetch(SHEET_DATA_URL);
+      if(!resData.ok) throw new Error(`Gagal fetch DATA. Status: ${resData.status}`);
       dataSekolahGlobal = parseCSV(await resData.text());
-      dataCoverGlobal = parseCSV(await resCover.text());
-    } catch(e) { alert('ERROR: ' + e.message); }
 
-    // ISI DROPDOWN
+      statusEl.innerText = 'Status: Mengambil Sheet COVER...';
+      const resCover = await fetch(SHEET_COVER_URL);
+      if(!resCover.ok) throw new Error(`Gagal fetch COVER. Status: ${resCover.status}`);
+      dataCoverGlobal = parseCSV(await resCover.text());
+      
+      statusEl.innerText = 'Status: ✅ Data Siap. Ketik NPSN.';
+      statusEl.className = 'text-center text-green-600 font-bold mb-2 no-print';
+      document.getElementById('inputNpsn').disabled = false;
+
+    } catch(e) { 
+      statusEl.innerText = 'ERROR: ' + e.message;
+      statusEl.className = 'text-center text-red-600 font-bold mb-2 no-print';
+      alert('ERROR: ' + e.message); 
+    }
+
     const selectBulan = document.getElementById('selectBulan'); BULAN.forEach(b => selectBulan.innerHTML += `<option value="${b}">${b}</option>`);
     selectBulan.value = BULAN[new Date().getMonth()];
-    selectBulan.onchange = updateStatusBulan; // Ganti bulan = ganti status
+    selectBulan.onchange = updateStatusBulan;
 
     const selectHelpdesk = document.getElementById('selectHelpdesk'); HELPDESK.forEach(h => selectHelpdesk.innerHTML += `<option value="${h}">${h}</option>`);
 
