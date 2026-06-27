@@ -10,9 +10,9 @@
 
   <style>
   /* === CSS DASHBOARD === */
-.card { border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); }
- /* INI YANG GUE HAPUS: thead th { position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2); } */
-.bulan-icon { font-size: 14px; text-align: center; width: 24px; }
+ .card { border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); }
+  /* STICKY UDAH GUE HAPUS BIAR GAK BEKU */
+ .bulan-icon { font-size: 14px; text-align: center; width: 24px; }
 
   /* === CSS ANIMASI LOADING SEPucuk JAMBI === */
   #loading-screen {
@@ -70,7 +70,8 @@
 
     <div class="card bg-white dark:bg-slate-800 mb-4"><input id="searchBox" type="text" placeholder="Cari NPSN, Nama Sekolah, atau Kabupaten..." class="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 placeholder-slate-400 dark:placeholder-slate-500"></div>
 
-    <div class="card bg-white dark:bg-slate-800 overflow-x-auto max-h-96 overflow-y-auto">
+    <!-- INI YANG GUE TAMBAH my-2 BIAR SCROLL AGAK KE BAWAH -->
+    <div class="card bg-white dark:bg-slate-800 overflow-x-auto max-h-96 overflow-y-auto my-2">
       <table class="w-full text-sm"><thead><tr class="text-left text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
         <th class="p-3">No</th><th class="p-3">NPSN</th><th class="p-3">Nama Sekolah</th><th class="p-3">Status</th><th class="p-3">Kabupaten</th>
         <th class="p-3 text-center" title="Januari">J</th><th class="p-3 text-center" title="Februari">F</th><th class="p-3 text-center" title="Maret">M</th><th class="p-3 text-center" title="April">A</th><th class="p-3 text-center" title="Mei">M</th><th class="p-3 text-center" title="Juni">J</th><th class="p-3 text-center" title="Juli">J</th><th class="p-3 text-center" title="Agustus">A</th><th class="p-3 text-center" title="September">S</th><th class="p-3 text-center" title="Oktober">O</th><th class="p-3 text-center" title="Nopember">N</th><th class="p-3 text-center" title="Desember">D</th>
