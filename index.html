@@ -13,17 +13,34 @@
 </head>
 <body class="p-4 md:p-8 bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
 <div class="max-w-[1600px] mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <div><h1 class="text-3xl font-bold mb-2">Dashboard Laporan BOSP Reguler SMA Provinsi Jambi Tahun 2026</h1><p class="text-slate-500 dark:text-slate-400">Update terakhir: <span id="lastUpdate">Loading...</span></p></div>
-    <button id="theme-toggle" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-md hover:scale-110 transition"><span id="theme-icon">🌙</span></button>
+
+  <!-- HEADER RESMI + LOGO -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <div class="flex items-center gap-4 text-center md:text-left">
+      <!-- LOGO KIRI: PROVINSI JAMBI -->
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Lambang_Provinsi_Jambi.svg/120px-Lambang_Provinsi_Jambi.svg.png" alt="Logo Provinsi Jambi" class="w-16 h-16 md:w-20 md:h-20 object-contain">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">Dashboard Laporan BOSP Reguler SMA</h1>
+        <p class="text-lg md:text-xl font-semibold text-slate-600 dark:text-slate-300">Provinsi Jambi Tahun 2026</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Update terakhir: <span id="lastUpdate">Loading...</span></p>
+      </div>
+      <!-- LOGO KAN: KEMENDIKBUD -->
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Logo_Kementerian_Pendidikan%2C_Kebudayaan%2C_Riset%2C_dan_Teknologi_Republik_Indonesia.svg/120px-Logo_Kementerian_Pendidikan%2C_Kebudayaan%2C_Riset%2C_dan_Teknologi_Republik_Indonesia.svg.png" alt="Logo Kemendikbud" class="w-16 h-16 md:w-20 md:h-20 object-contain hidden md:block">
+    </div>
+    <button id="theme-toggle" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-md hover:scale-110 transition absolute top-4 right-4 md:static">
+      <span id="theme-icon">🌙</span>
+    </button>
   </div>
+  
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div class="card bg-white dark:bg-slate-800"><p class="text-slate-500 dark:text-slate-400 text-sm">Total Sekolah</p><p id="total" class="text-4xl font-bold">0</p></div>
     <div class="card bg-white dark:bg-slate-800"><p class="text-slate-500 dark:text-slate-400 text-sm">Lengkap 12/12</p><p id="sudah" class="text-4xl font-bold text-green-600 dark:text-green-400">0</p></div>
     <div class="card bg-white dark:bg-slate-800"><p class="text-slate-500 dark:text-slate-400 text-sm">Belum Lengkap</p><p id="belum" class="text-4xl font-bold text-red-600 dark:text-red-400">0</p></div>
     <div class="card bg-white dark:bg-slate-800"><p class="text-slate-500 dark:text-slate-400 text-sm">% Selesai</p><p id="persen" class="text-4xl font-bold text-blue-600 dark:text-blue-400">0%</p></div>
   </div>
+
   <div class="card bg-white dark:bg-slate-800 mb-4"><input id="searchBox" type="text" placeholder="Cari NPSN, Nama Sekolah, atau Kabupaten..." class="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 placeholder-slate-400 dark:placeholder-slate-500"></div>
+
   <div class="card bg-white dark:bg-slate-800 overflow-x-auto max-h- overflow-y-auto">
     <table class="w-full text-sm"><thead><tr class="text-left text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
       <th class="p-3">No</th><th class="p-3">NPSN</th><th class="p-3">Nama Sekolah</th><th class="p-3">Status</th><th class="p-3">Kabupaten</th>
@@ -40,7 +57,6 @@
   if (localStorage.getItem('theme') === 'dark') { html.classList.add('dark'); themeIcon.textContent = '☀️'; } else { themeIcon.textContent = '🌙'; }
   themeToggleBtn.addEventListener('click', () => { html.classList.toggle('dark'); if (html.classList.contains('dark')) { localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; } else { localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } });
 
-  // KUNCI: FUNGSI CSV PARSER MANUAL ANTI KOMA
   function parseCSV(text) {
     const lines = text.trim().split('\n');
     const headers = lines.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/^"|"$/g, '').trim());
@@ -69,13 +85,11 @@
     try {
       const res = await fetch(SHEET_CSV_URL); if(!res.ok) throw new Error('Link CSV Gagal');
       const csvText = await res.text();
-      semuaData = parseCSV(csvText); // PAKE PARSER BUATAN SENDIRI
-      
+      semuaData = parseCSV(csvText); 
       const total = semuaData.length; 
       const sudah = semuaData.filter(s => BULAN.filter(b => { const v=get(s,b).toUpperCase().trim(); return v==='TRUE'||v==='1'||v.includes('SUDAH'); }).length === 12).length;
       const belum = total - sudah; 
       const persen = total > 0? ((sudah / total) * 100).toFixed(1) : 0;
-      
       document.getElementById('total').innerText = total; 
       document.getElementById('sudah').innerText = sudah; 
       document.getElementById('belum').innerText = belum; 
@@ -87,7 +101,21 @@
       document.getElementById('tabelBody').innerHTML = `<tr><td colspan="19" class="p-6 text-center text-red-500">Gagal load: ${e.message}</td></tr>`; 
     }
   }
-  document.getElementById('searchBox').addEventListener('input', (e) => { const keyword = e.target.value.toLowerCase(); renderTabel(semuaData.filter(d => JSON.stringify(d).toLowerCase().includes(keyword))); });
+  
+  let searchTimeout;
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout); 
+    searchTimeout = setTimeout(() => { 
+      const keyword = e.target.value.toLowerCase();
+      const hasilFilter = semuaData.filter(d => 
+        get(d, 'NPSN').toLowerCase().includes(keyword) || 
+        get(d, 'Nama Sekolah').toLowerCase().includes(keyword) || 
+        get(d, 'Kabupaten').toLowerCase().includes(keyword)
+      );
+      renderTabel(hasilFilter);
+    }, 300); 
+  });
+
   loadData();
 </script>
 </body>
