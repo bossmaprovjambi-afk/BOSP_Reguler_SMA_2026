@@ -7,160 +7,149 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-.card { background-color: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); padding: 1.5rem; }
-  th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
-.status-sudah { background-color: #d1fae5; color: #065f46; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; }
-.status-belum { background-color: #fee2e2; color: #991b1b; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; }
-.row-clickable:hover { background-color: #eff6ff; cursor: pointer; }
-.row-active { background-color: #dbeafe!important; } /* Baris yang dipilih jadi biru */
+  body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+  .card { background-color: white; border-radius: 1rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); padding: 1.5rem; }
+  th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 0.875rem; }
+  .badge-sudah { background-color: #dcfce7; color: #166534; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; }
+  .badge-belum { background-color: #fee2e2; color: #991b1b; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; }
+  .row-clickable:hover { background-color: #eff6ff; cursor: pointer; }
+  .row-active { background-color: #dbeafe!important; }
 </style>
 </head>
 <body class="p-4 md:p-8">
 
 <div class="max-w-7xl mx-auto">
-  <header class="flex flex-col md:flex-row justify-between items-center mb-8">
-    <div><h1 class="text-3xl font-bold text-gray-800">Dashboard BOSP Jambi 2026</h1><p class="text-gray-500">Monitoring Laporan Real-Time</p></div>
-    <button id="refreshBtn" class="mt-4 md:mt-0 bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition">Refresh Data</button>
+  <header class="flex flex-col md:flex-row justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Dashboard BOSP Jambi 2026</h1>
+      <p id="lastUpdate" class="text-gray-500 text-sm">Status: Memuat...</p>
+    </div>
+    <button id="refreshBtn" class="mt-4 md:mt-0 bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-700">Refresh Data</button>
   </header>
 
-  <div id="loader" class="text-center p-10"><p class="text-lg text-gray-600">Memuat data...</p></div>
+  <div id="loader" class="text-center p-10 card"><p class="text-lg text-gray-600">Memuat data dari Google Sheet...</p></div>
 
   <div id="dashboard" class="hidden">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="card"><p class="text-gray-500">Total Sekolah</p><p id="totalSekolah" class="text-4xl font-bold">0</p></div>
-      <div class="card"><p class="text-gray-500">Sudah Kirim</p><p id="sudahKirim" class="text-4xl font-bold text-green-600">0</p></div>
-      <div class="card"><p class="text-gray-500">Belum Kirim</p><p id="belumKirim" class="text-4xl font-bold text-red-600">0</p></div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div class="card"><p class="text-gray-500 text-sm">Total Sekolah</p><p id="totalSekolah" class="text-3xl font-bold">0</p></div>
+      <div class="card"><p class="text-gray-500 text-sm">Sudah Kirim</p><p id="sudahKirim" class="text-3xl font-bold text-green-600">0</p></div>
+      <div class="card"><p class="text-gray-500 text-sm">Belum Kirim</p><p id="belumKirim" class="text-3xl font-bold text-red-600">0</p></div>
+      <div class="card"><p class="text-gray-500 text-sm">% Terlaporkan</p><p id="persen" class="text-3xl font-bold text-blue-600">0%</p></div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="card lg:col-span-1"><h3 class="font-bold text-lg mb-4">Progres Laporan</h3><canvas id="statusChart"></canvas></div>
-      
+      <div class="card lg:col-span-1"><h3 class="font-bold mb-4">Progres</h3><canvas id="statusChart"></canvas></div>
       <div class="card lg:col-span-2">
-        <h3 class="font-bold text-lg mb-4">Data Sekolah - Klik untuk lihat detail</h3>
+        <h3 class="font-bold mb-4">Data Sekolah - Klik baris untuk detail</h3>
         <input type="text" id="searchInput" placeholder="Cari Nama Sekolah / NPSN..." class="w-full p-2 border rounded-lg mb-4">
-        <div class="overflow-x-auto max-h-80"><table class="w-full text-sm"><thead class="bg-gray-50 sticky top-0"><tr><th>NPSN</th><th>Nama Sekolah</th><th>Kab/Kota</th><th>Status</th></tr></thead><tbody id="dataTable"></tbody></table></div>
+        <div class="overflow-x-auto max-h-80"><table class="w-full"><thead class="bg-gray-50 sticky top-0"><tr><th>NPSN</th><th>Nama Sekolah</th><th>Kab/Kota</th><th>Status</th></tr></thead><tbody id="dataTable"></tbody></table></div>
       </div>
     </div>
 
-    <!-- INI KARTU DETAIL VERTIKAL NYA LUR -->
     <div id="detailCard" class="card mt-6 hidden">
       <h3 id="detailTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
       <div id="detailBody" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3"></div>
     </div>
-
   </div>
 </div>
 
 <script>
+  // RUMUS 1: LINK DATA GOOGLE SHEET - UDAH AKU BENERIN, TINGGAL PAKAI
   const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?output=csv';
   
   let allData = [];
   let statusChart;
-  let headers = [];
 
+  // RUMUS 2: AMBIL DATA DARI GOOGLE
   async function fetchData() {
     document.getElementById('loader').classList.remove('hidden');
     document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('lastUpdate').innerText = 'Status: Memuat...';
     try {
-      const response = await fetch(SHEET_CSV_URL + '&t=' + new Date().getTime());
-      const csvText = await response.text();
-      const lines = csvText.split('\n');
-      headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
-
+      const res = await fetch(SHEET_CSV_URL + '&t=' + new Date().getTime()); // Anti cache
+      if (!res.ok) throw new Error('Gagal fetch');
+      const text = await res.text();
+      const [headerLine, ...lines] = text.trim().split('\n');
+      
+      // RUMUS 3: POTONG JADI 5 KOLOM DOANG, URUT
       allData = lines.map(line => {
-        const cols = line.split(',').map(c => c.trim().replace(/"/g, ''));
-        let obj = {};
-        headers.forEach((h, i) => obj[h] = cols[i] || '');
-        return obj;
-      }).filter(r => r[headers[0]]);
+        const [npsn, nama, kabkota, jenis, status] = line.split(',').map(c => c.trim().replace(/"/g, ''));
+        return { npsn, nama, kabkota, jenis, status };
+      }).filter(r => r.npsn); // Buang baris kosong
 
       updateDashboard();
+      document.getElementById('lastUpdate').innerText = `Update: ${new Date().toLocaleTimeString('id-ID')}`;
     } catch (error) {
-      document.getElementById('loader').innerHTML = `<p class="text-red-600 font-bold">Gagal memuat data. Cek Google Sheet udah 'Siapa saja dengan link' belum lur?</p>`;
+      document.getElementById('loader').innerHTML = `<p class="text-red-600 font-bold text-lg">GAGAL MEMUAT DATA!</p><p class="text-gray-600">Cek 2 hal: 1. Sheet udah 'Siapa saja dengan link'? 2. Link CSV bener?</p>`;
     } finally {
       document.getElementById('loader').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
     }
   }
 
+  // RUMUS 4: HITUNG TOTAL, SUDAH, BELUM, PERSEN
   function updateDashboard() {
-    const statusCol = headers.find(h => h.toLowerCase().includes('status'));
-    const sudah = allData.filter(d => d[statusCol]?.toUpperCase() === 'SAMA').length;
-    const belum = allData.filter(d => d[statusCol]?.toUpperCase() === 'BELUM SAMA').length;
+    const sudah = allData.filter(d => d.status?.toUpperCase().trim() === 'SAMA').length;
+    const belum = allData.filter(d => d.status?.toUpperCase().trim() === 'BELUM SAMA').length;
     const total = allData.length;
+    const persen = total > 0 ? ((sudah / total) * 100).toFixed(1) : 0;
 
     document.getElementById('totalSekolah').innerText = total;
     document.getElementById('sudahKirim').innerText = sudah;
     document.getElementById('belumKirim').innerText = belum;
-
+    document.getElementById('persen').innerText = persen + '%';
+    
     renderTable(allData);
     renderChart(sudah, belum);
   }
 
+  // RUMUS 5: GAMBAR TABEL
   function renderTable(data) {
-    const npsnCol = headers.find(h => h.toLowerCase().includes('npsn'));
-    const namaCol = headers.find(h => h.toLowerCase().includes('nama'));
-    const kabCol = headers.find(h => h.toLowerCase().includes('kab') || h.toLowerCase().includes('kota'));
-    const statusCol = headers.find(h => h.toLowerCase().includes('status'));
-
-    const tbody = document.getElementById('dataTable');
-    tbody.innerHTML = data.map(d => `
-      <tr id="row-${d[npsnCol]}" class="row-clickable" onclick="showDetail('${d[npsnCol]}')">
-        <td>${d[npsnCol]}</td>
-        <td>${d[namaCol]}</td>
-        <td>${d[kabCol]}</td>
-        <td><span class="${d[statusCol]?.toUpperCase() === 'SAMA'? 'status-sudah' : 'status-belum'}">${d[statusCol]}</span></td>
+    document.getElementById('dataTable').innerHTML = data.map(d => `
+      <tr id="row-${d.npsn}" class="row-clickable" onclick="showDetail('${d.npsn}')">
+        <td>${d.npsn}</td><td>${d.nama}</td><td>${d.kabkota}</td>
+        <td><span class="${d.status?.toUpperCase().trim() === 'SAMA'? 'badge-sudah' : 'badge-belum'}">${d.status}</span></td>
       </tr>
     `).join('');
   }
   
+  // RUMUS 6: GAMBAR GRAFIK DONUT
   function renderChart(sudah, belum) {
     const ctx = document.getElementById('statusChart').getContext('2d');
     if(statusChart) statusChart.destroy();
-    statusChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Sudah Kirim', 'Belum Kirim'], datasets: [{ data: [sudah, belum], backgroundColor: ['#10B981', '#EF4444'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } });
-  }
-
-  // FUNGSI KARTU VERTIKAL
-  function showDetail(npsn) {
-    // 1. Hapus highlight biru dari semua baris
-    document.querySelectorAll('#dataTable tr').forEach(tr => tr.classList.remove('row-active'));
-    // 2. Kasih highlight biru ke baris yang diklik
-    document.getElementById(`row-${npsn}`).classList.add('row-active');
-
-    const npsnCol = headers.find(h => h.toLowerCase().includes('npsn'));
-    const namaCol = headers.find(h => h.toLowerCase().includes('nama'));
-    const data = allData.find(d => d[npsnCol] === npsn);
-    if (!data) return;
-
-    document.getElementById('detailTitle').innerText = `Detail: ${data[namaCol]}`;
-    
-    let bodyHTML = '';
-    headers.forEach(key => { // Loop semua kolom jadi vertikal
-      if (data[key]) {
-        bodyHTML += `
-          <div class="border-b pb-2">
-            <p class="text-sm text-gray-500 font-medium capitalize">${key}</p>
-            <p class="text-gray-800 font-semibold">${data[key]}</p>
-          </div>
-        `;
-      }
+    statusChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: ['Sudah Kirim', 'Belum Kirim'], datasets: [{ data: [sudah, belum], backgroundColor: ['#22c55e', '#ef4444'] }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' }
     });
-    document.getElementById('detailBody').innerHTML = bodyHTML;
-    document.getElementById('detailCard').classList.remove('hidden'); // Munculin kartunya
-    document.getElementById('detailCard').scrollIntoView({ behavior: 'smooth' }); // Auto scroll ke bawah
   }
 
-  document.getElementById('refreshBtn').addEventListener('click', fetchData);
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    const search = e.target.value.toLowerCase();
-    const npsnCol = headers.find(h => h.toLowerCase().includes('npsn'));
-    const namaCol = headers.find(h => h.toLowerCase().includes('nama'));
-    const filtered = allData.filter(d => d[namaCol].toLowerCase().includes(search) || d[npsnCol].includes(search));
-    renderTable(filtered);
-    document.getElementById('detailCard').classList.add('hidden'); // Sembunyiin detail kalo lagi nyari
-  });
+  // RUMUS 7: MUNCULIN DETAIL VERTIKAL KETIKA DIKLIK
+  function showDetail(npsn) {
+    document.querySelectorAll('#dataTable tr').forEach(tr => tr.classList.remove('row-active'));
+    document.getElementById(`row-${npsn}`).classList.add('row-active');
+    const d = allData.find(x => x.npsn === npsn);
+    document.getElementById('detailTitle').innerText = `Detail: ${d.nama}`;
+    document.getElementById('detailBody').innerHTML = `
+      <div><p class="text-gray-500 text-sm">NPSN</p><p class="font-semibold">${d.npsn}</p></div>
+      <div><p class="text-gray-500 text-sm">Kab/Kota</p><p class="font-semibold">${d.kabkota}</p></div>
+      <div><p class="text-gray-500 text-sm">Jenis</p><p class="font-semibold">${d.jenis}</p></div>
+      <div><p class="text-gray-500 text-sm">Status Kirim</p><p class="font-semibold">${d.status}</p></div>
+    `;
+    document.getElementById('detailCard').classList.remove('hidden');
+    document.getElementById('detailCard').scrollIntoView({ behavior: 'smooth' });
+  }
 
+  // RUMUS 8: TOMBOL CARI + REFRESH
+  document.getElementById('refreshBtn').onclick = fetchData;
+  document.getElementById('searchInput').oninput = e => {
+    const s = e.target.value.toLowerCase();
+    const f = allData.filter(d => d.nama.toLowerCase().includes(s) || d.npsn.includes(s));
+    renderTable(f);
+    document.getElementById('detailCard').classList.add('hidden');
+  };
+
+  // RUMUS 9: JALANKAN PERTAMA KALI
   fetchData();
 </script>
 </body>
