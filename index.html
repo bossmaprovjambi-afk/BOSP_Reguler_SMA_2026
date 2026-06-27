@@ -7,7 +7,7 @@
   <title>Dashboard Laporan BOSP Reguler SMA Provinsi Jambi Tahun 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' }</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> <!-- LIBRARY EXCEL -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
 .card { border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); backdrop-blur-sm; }
@@ -32,7 +32,10 @@
           <h1 id="judulUtama" class="text-2xl md:text-3xl font-bold">Dashboard Laporan BOSP Reguler SMA</h1>
           <p class="text-lg md:text-xl font-semibold text-slate-600 dark:text-slate-300">Provinsi Jambi Tahun 2026</p>
           <p class="text-sm text-slate-500 dark:text-slate-400">Update terakhir: <span id="lastUpdate">Loading...</span></p>
-          <a href="./rekap.html" class="mt-2 inline-block bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Lihat Rekap Kabupaten</a>
+          <div class="flex gap-2 mt-2"> <!-- DIBUNGKUS FLEX BIAR SEBELAHAN -->
+            <a href="./rekap.html" class="inline-block bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Lihat Rekap Kabupaten</a>
+            <button id="exportBtn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Download</button> <!-- INI TOMBOL BARU -->
+          </div>
         </div>
       </div>
       <button id="theme-toggle" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-md hover:scale-110 transition absolute top-4 right-4 md:static">
@@ -47,11 +50,7 @@
       <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">% Selesai</p><p id="persen" class="text-4xl font-bold text-blue-600 dark:text-blue-400">0%</p></div>
     </div>
 
-    <!-- INI BAGIAN BARU: SEARCH + TOMBOL EXCEL -->
-    <div class="flex flex-col md:flex-row gap-2 mb-4">
-      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 flex-grow"><input id="searchBox" type="text" placeholder="Cari NPSN, Nama Sekolah, atau Kabupaten..." class="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 placeholder-slate-400 dark:placeholder-slate-500"></div>
-      <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition flex items-center justify-center gap-2">📊 Download Excel</button>
-    </div>
+    <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 mb-4"><input id="searchBox" type="text" placeholder="Cari NPSN, Nama Sekolah, atau Kabupaten..." class="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 placeholder-slate-400 dark:placeholder-slate-500"></div>
 
     <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 overflow-x-auto my-2">
       <table class="w-full text-sm"><thead><tr class="text-left text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
@@ -64,7 +63,7 @@
 
 <script>
   const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=147011660&single=true&output=csv';
-  let semuaData = []; let dataTertampil = []; // TAMBAH dataTertampil
+  let semuaData = []; let dataTertampil = []; 
   const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','Nopember','Desember'];
 
   const themeToggleBtn = document.getElementById('theme-toggle'); const themeIcon = document.getElementById('theme-icon'); const html = document.documentElement;
@@ -82,7 +81,7 @@
   function get(row, namaKolom) { const key = Object.keys(row).find(k => k.trim().toLowerCase() === namaKolom.trim().toLowerCase()); return row[key] || ''; }
 
   function renderTabel(data) {
-    dataTertampil = data; // SIMPAN DATA YG LAGI DITAMPILIN BUAT EXCEL
+    dataTertampil = data; 
     const tbody = document.getElementById('tabelBody');
     if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="19" class="p-6 text-center">Data tidak ditemukan</td></tr>`; return; }
     tbody.innerHTML = '';
@@ -174,7 +173,6 @@
     }, 300);
   });
 
-  // FUNGSI BARU BUAT DOWNLOAD EXCEL
   document.getElementById('exportBtn').addEventListener('click', () => {
     const dataExcel = dataTertampil.map((row, i) => {
       let sudahBulan = 0;
