@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' }</script>
   <style>
-   .card { border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); backdrop-blur-sm; }
+ .card { border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); backdrop-blur-sm; }
     #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a, #1e293b); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.6s ease-out; }
     #loading-screen img { width: 140px; animation: pulse-glow 1.8s infinite ease-in-out; }
     @keyframes pulse-glow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px #facc15); } 50% { transform: scale(1.15); filter: drop-shadow(0 0 15px #facc15); }
@@ -81,7 +81,7 @@
         return { kab, total, sudah, belum, persen: parseFloat(persen) };
       });
 
-      rekapArray.sort((a, b) => b.persen - a.persen); // Urutkan dari yg tertinggi
+      rekapArray.sort((a, b) => b.persen - a.persen); 
 
       const tbody = document.getElementById('rekapBody');
       tbody.innerHTML = '';
@@ -89,7 +89,7 @@
         const warnaPersen = item.persen == 100? 'text-green-600 dark:text-green-400' : item.persen >= 50? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400';
         tbody.innerHTML += `<tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
           <td class="p-3 font-bold">${i + 1}</td>
-          <td class="p-3 font-semibold">${item.kab}</td>
+          <td class="p-3 font-semibold"><a href="./index.html?kab=${encodeURIComponent(item.kab)}" class="text-blue-500 hover:underline hover:text-blue-400">${item.kab}</a></td>
           <td class="p-3 text-center">${item.total}</td>
           <td class="p-3 text-center font-bold text-green-600 dark:text-green-400">${item.sudah}</td>
           <td class="p-3 text-center font-bold text-red-600 dark:text-red-400">${item.belum}</td>
