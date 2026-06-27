@@ -3,153 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard BOSP Jambi 2026</title>
+<title>Ringkasan BOSP Jambi 2026</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
- .card { background-color: white; border-radius: 1rem; padding: 1.5rem; }
-  th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
- .badge-sudah { background-color: #dcfce7; color: #166534; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; }
- .badge-belum { background-color: #fee2e2; color: #991b1b; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; }
- .page-btn { padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 0.5rem; }
- .page-btn.active { background-color: #2563eb; color: white; }
- .page-btn:disabled { opacity: 0.5; }
-</style>
+<style>body { background-color: #f1f5f9; }.card { background-color: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); }</style>
 </head>
 <body class="p-4 md:p-8">
-
-<div class="max-w-7xl mx-auto">
-  <header class="flex justify-between items-center mb-6">
-    <div><h1 class="text-2xl font-bold">Dashboard BOSP Jambi 2026</h1><p id="lastUpdate" class="text-gray-500 text-sm"></p></div>
-    <button id="refreshBtn" class="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg">Refresh Manual</button>
-  </header>
-
-  <div id="loader" class="text-center p-10 card"><p>Memuat 251 data...</p></div>
-
-  <div id="dashboard" class="hidden">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div class="card"><p class="text-gray-500 text-sm">Total</p><p id="totalSekolah" class="text-3xl font-bold">0</p></div>
-      <div class="card"><p class="text-gray-500 text-sm">Sudah</p><p id="sudahKirim" class="text-3xl font-bold text-green-600">0</p></div>
-      <div class="card"><p class="text-gray-500 text-sm">Belum</p><p id="belumKirim" class="text-3xl font-bold text-red-600">0</p></div>
-      <div class="card"><p class="text-gray-500 text-sm">%</p><p id="persen" class="text-3xl font-bold text-blue-600">0%</p></div>
-    </div>
-
-    <div class="card">
-      <input type="text" id="searchInput" placeholder="Cari Nama / NPSN..." class="w-full p-2 border rounded-lg mb-4">
-      <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>NPSN</th><th>Nama</th><th>Kab/Kota</th><th>Status</th></tr></thead><tbody id="dataTable"></tbody></table></div>
-      <div id="pagination" class="flex justify-center items-center gap-2 mt-4"></div>
-    </div>
-    <div id="detailCard" class="card mt-6 hidden"><h3 id="detailTitle" class="text-xl font-bold mb-4"></h3><div id="detailBody" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div></div>
+<div class="max-w-5xl mx-auto">
+  <h1 class="text-3xl font-bold mb-2">Dashboard BOSP Jambi 2026</h1>
+  <p class="text-gray-500 mb-6">Update terakhir: <span id="lastUpdate"></span></p>
+  
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="card"><p class="text-gray-500 text-sm">Total Sekolah</p><p id="total" class="text-4xl font-bold">0</p></div>
+    <div class="card"><p class="text-gray-500 text-sm">Sudah Kirim</p><p id="sudah" class="text-4xl font-bold text-green-600">0</p></div>
+    <div class="card"><p class="text-gray-500 text-sm">Belum Kirim</p><p id="belum" class="text-4xl font-bold text-red-600">0</p></div>
+    <div class="card"><p class="text-gray-500 text-sm">% Selesai</p><p id="persen" class="text-4xl font-bold text-blue-600">0%</p></div>
   </div>
 </div>
-
 <script>
-  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?output=csv';
-  const ROWS_PER_PAGE = 20;
-  
-  let allData = [];
-  let filteredData = [];
-  let currentPage = 1;
+  // ========================================================
+  // LANGKAH 1: BUKA SHEET LU > CTRL+A > CTRL+C 
+  // LANGKAH 2: PASTE SEMUANYA DI ANTARA TANDA ` INI
+  // ========================================================
+  const RAW_DATA = `NPSN,NAMA SEKOLAH,KAB/KOTA,JENIS,STATUS KIRIM
+10521431,SDN 1 JAMBI,SUNGAI PENUH,SD,SAMA
+10521432,SDN 2 JAMBI,SUNGAI PENUH,SD,BELUM SAMA
+`; // <-- HAPUS INI. GANTI DATA LU 251 BARIS
 
-  function parseCSV(text) {
-    const lines = text.trim().split('\n');
-    const headers = lines.shift().split(',').map(h => h.trim().replace(/ /g, '_').toLowerCase());
-    const data = [];
-    lines.forEach((line, i) => {
-      const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/^"|"$/g, '').trim());
-      data.push({
-        npsn: cols[headers.indexOf('npsn')],
-        nama: cols[headers.indexOf('nama_sekolah')],
-        kabkota: cols[headers.indexOf('kab/kota')],
-        jenis: cols[headers.indexOf('jenis')],
-        status: cols[headers.indexOf('status_kirim')]
-      });
-    });
-    return data.filter(r => r.npsn);
-  }
-
-  async function fetchData() {
-    document.getElementById('loader').innerHTML = `<p>Memuat 251 data...</p>`;
-    document.getElementById('loader').classList.remove('hidden');
-    document.getElementById('dashboard').classList.add('hidden');
-    try {
-      const res = await fetch(SHEET_CSV_URL);
-      const text = await res.text();
-      allData = parseCSV(text);
-      filteredData = allData;
-      updateDashboard();
-      document.getElementById('lastUpdate').innerText = `Update: ${new Date().toLocaleTimeString('id-ID')}`;
-    } catch (error) {
-      document.getElementById('loader').innerHTML = `<p class="text-red-600 font-bold">GAGAL: ${error.message}</p>`;
-    } finally {
-      document.getElementById('loader').classList.add('hidden');
-      if(allData.length > 0) document.getElementById('dashboard').classList.remove('hidden');
-    }
-  }
-
-  function updateDashboard() {
-    const sudah = allData.filter(d => d.status?.toUpperCase() === 'SAMA').length;
-    const belum = allData.filter(d => d.status?.toUpperCase() === 'BELUM SAMA').length;
-    const total = allData.length;
+  function prosesData() {
+    const lines = RAW_DATA.trim().split('\n');
+    if(lines.length <= 1) return;
+    const headers = lines.shift().split(',').map(h => h.trim());
+    const idxStatus = headers.indexOf('STATUS KIRIM');
+    const dataStatus = lines.map(l => l.split(',')[idxStatus]?.trim().replace(/"/g,''));
+    
+    const total = dataStatus.length;
+    const sudah = dataStatus.filter(s => s?.toUpperCase() === 'SAMA').length;
+    const belum = dataStatus.filter(s => s?.toUpperCase() === 'BELUM SAMA').length;
     const persen = total > 0? ((sudah / total) * 100).toFixed(1) : 0;
 
-    document.getElementById('totalSekolah').innerText = total;
-    document.getElementById('sudahKirim').innerText = sudah;
-    document.getElementById('belumKirim').innerText = belum;
+    document.getElementById('total').innerText = total;
+    document.getElementById('sudah').innerText = sudah;
+    document.getElementById('belum').innerText = belum;
     document.getElementById('persen').innerText = persen + '%';
-    
-    renderTable();
-    renderPagination();
+    document.getElementById('lastUpdate').innerText = new Date().toLocaleString('id-ID');
   }
-
-  function renderTable() {
-    const start = (currentPage - 1) * ROWS_PER_PAGE;
-    const pageData = filteredData.slice(start, start + ROWS_PER_PAGE);
-    document.getElementById('dataTable').innerHTML = pageData.map(d => `
-      <tr class="hover:bg-blue-50 cursor-pointer" onclick="showDetail('${d.npsn}')">
-        <td>${d.npsn}</td><td>${d.nama}</td><td>${d.kabkota}</td>
-        <td><span class="${d.status?.toUpperCase() === 'SAMA'? 'badge-sudah' : 'badge-belum'}">${d.status}</span></td>
-      </tr>
-    `).join('');
-  }
-
-  function renderPagination() {
-    const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
-    let buttons = `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1? 'disabled' : ''}>Prev</button>`;
-    for (let i = 1; i <= totalPages; i++) buttons += `<button class="page-btn ${i === currentPage? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
-    buttons += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages? 'disabled' : ''}>Next</button>`;
-    document.getElementById('pagination').innerHTML = buttons;
-  }
-
-  function changePage(page) {
-    const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
-    if (page < 1 || page > totalPages) return;
-    currentPage = page;
-    renderTable();
-    renderPagination();
-  }
-
-  function showDetail(npsn) {
-    const d = allData.find(x => x.npsn === npsn);
-    document.getElementById('detailTitle').innerText = d.nama;
-    document.getElementById('detailBody').innerHTML = `
-      <div><p class="text-gray-500 text-sm">NPSN</p><p class="font-semibold">${d.npsn}</p></div>
-      <div><p class="text-gray-500 text-sm">Kab/Kota</p><p class="font-semibold">${d.kabkota}</p></div>
-      <div><p class="text-gray-500 text-sm">Jenis</p><p class="font-semibold">${d.jenis}</p></div>
-      <div><p class="text-gray-500 text-sm">STATUS KIRIM</p><p class="font-semibold">${d.status}</p></div>
-    `;
-    document.getElementById('detailCard').classList.remove('hidden');
-  }
-
-  document.getElementById('refreshBtn').onclick = fetchData;
-  document.getElementById('searchInput').oninput = e => {
-    const s = e.target.value.toLowerCase();
-    filteredData = allData.filter(d => d.nama.toLowerCase().includes(s) || d.npsn.includes(s));
-    currentPage = 1;
-    renderTable();
-    renderPagination();
-  };
-  fetchData(); // Cuma jalan 1x pas buka
+  prosesData();
 </script>
 </body>
 </html>
