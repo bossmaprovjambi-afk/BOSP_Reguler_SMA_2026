@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekap Kabupaten - BOSP SMA Jambi 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <style>
+   .card { border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); backdrop-blur-sm; }
+    #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a, #1e293b); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.6s ease-out; }
+    #loading-screen img { width: 140px; animation: pulse-glow 1.8s infinite ease-in-out; }
+    @keyframes pulse-glow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px #facc15); } 50% { transform: scale(1.15); filter: drop-shadow(0 0 15px #facc15); }
+  </style>
+</head>
+
+<body class="p-4 md:p-8 bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+  <div id="loading-screen"><img src="./logo-jambi.png" alt="Loading..."></div>
+
+  <div class="max-w-5xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">Rekap Laporan BOSP per Kabupaten</h1>
+        <p class="text-lg md:text-xl font-semibold text-slate-600 dark:text-slate-300">SMA Provinsi Jambi Tahun 2026</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Update terakhir: <span id="lastUpdate">Loading...</span></p>
+      </div>
+      <div class="flex gap-2">
+        <a href="./index.html" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">← Kembali ke Dashboard</a>
+        <button id="theme-toggle" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-md hover:scale-110 transition">
+          <span id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 overflow-x-auto">
+      <table class="w-full text-sm"><thead><tr class="text-left text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+        <th class="p-3">No</th><th class="p-3">Kabupaten/Kota</th><th class="p-3 text-center">Total Sekolah</th><th class="p-3 text-center">Lengkap 12/12</th><th class="p-3 text-center">Belum Lengkap</th><th class="p-3 text-center">% Selesai</th>
+      </tr></thead><tbody id="rekapBody"><tr><td colspan="6" class="p-6 text-center text-slate-400">Loading...</td></tr></tbody></table>
+    </div>
+  </div>
+
+<script>
+  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=147011660&single=true&output=csv';
+  const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','Nopember','Desember'];
+
+  const themeToggleBtn = document.getElementById('theme-toggle'); const themeIcon = document.getElementById('theme-icon'); const html = document.documentElement;
+  if (localStorage.getItem('theme') === 'dark') { html.classList.add('dark'); themeIcon.textContent = '☀️'; } else { themeIcon.textContent = '🌙'; }
+  themeToggleBtn.addEventListener('click', () => { html.classList.toggle('dark'); if (html.classList.contains('dark')) { localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; } else { localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } });
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    const headers = lines.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/^"|"$/g, '').trim());
+    return lines.map(line => {
+      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+      return headers.reduce((obj, header, i) => { obj[header] = values[i] || ''; return obj; }, {});
+    });
+  }
+  function get(row, namaKolom) { const key = Object.keys(row).find(k => k.trim().toLowerCase() === namaKolom.trim().toLowerCase()); return row[key] || ''; }
+
+  async function loadRekap() {
+    try {
+      const res = await fetch(SHEET_CSV_URL); if(!res.ok) throw new Error('Link CSV Gagal');
+      const csvText = await res.text();
+      const semuaData = parseCSV(csvText);
+      
+      const rekapPerKab = {};
+      semuaData.forEach(row => {
+        const kab = get(row, 'Kabupaten') || 'Tidak Diketahui';
+        if (!rekapPerKab[kab]) rekapPerKab[kab] = { total: 0, sudah: 0 };
+        rekapPerKab[kab].total++;
+        const jmlSudah = BULAN.filter(b => { const v=get(row,b).toUpperCase().trim(); return v==='TRUE'||v==='1'||v.includes('SUDAH'); }).length;
+        if (jmlSudah === 12) rekapPerKab[kab].sudah++;
+      });
+
+      const rekapArray = Object.keys(rekapPerKab).map(kab => {
+        const total = rekapPerKab[kab].total;
+        const sudah = rekapPerKab[kab].sudah;
+        const belum = total - sudah;
+        const persen = total > 0? ((sudah / total) * 100).toFixed(1) : 0;
+        return { kab, total, sudah, belum, persen: parseFloat(persen) };
+      });
+
+      rekapArray.sort((a, b) => b.persen - a.persen); // Urutkan dari yg tertinggi
+
+      const tbody = document.getElementById('rekapBody');
+      tbody.innerHTML = '';
+      rekapArray.forEach((item, i) => {
+        const warnaPersen = item.persen == 100? 'text-green-600 dark:text-green-400' : item.persen >= 50? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400';
+        tbody.innerHTML += `<tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+          <td class="p-3 font-bold">${i + 1}</td>
+          <td class="p-3 font-semibold">${item.kab}</td>
+          <td class="p-3 text-center">${item.total}</td>
+          <td class="p-3 text-center font-bold text-green-600 dark:text-green-400">${item.sudah}</td>
+          <td class="p-3 text-center font-bold text-red-600 dark:text-red-400">${item.belum}</td>
+          <td class="p-3 text-center font-bold text-2xl ${warnaPersen}">${item.persen}%</td>
+        </tr>`;
+      });
+
+      document.getElementById('lastUpdate').innerText = new Date().toLocaleString('id-ID');
+
+    } catch(e) {
+      console.error(e);
+      document.getElementById('rekapBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-red-500">Gagal load: ${e.message}</td></tr>`;
+    }
+  }
+
+  loadRekap();
+  window.addEventListener('load', () => {
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.opacity = '0';
+    setTimeout(() => { loadingScreen.style.display = 'none'; }, 600);
+  });
+</script>
+</body>
+</html>
