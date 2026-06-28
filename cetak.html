@@ -1,55 +1,78 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mencetak Laporan...</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #525659; }
-    #pdf-frame { width: 100%; height: 100%; border: none; }
-    #topbar {
-      position: fixed; top: -60px; left: 0; width: 100%; height: 60px;
-      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
-      color: white; display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem; transition: top 0.4s ease-in-out; z-index: 100;
-    }
-    body:hover #topbar { top: 0; }
-    @media print { #topbar { display: none!important; } body { background-color: white; }
-    #pdf-frame { opacity: 0; transform: scale(0.98) translateY(20px); animation: fadeInUp 0.8s ease-out forwards; }
-    @keyframes fadeInUp { to { opacity: 1; transform: scale(1) translateY(0); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cetak Laporan BOSP</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+  .container { max-width: 1200px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px #ccc; }
+  h1 { text-align: center; }
+  .btn-wrap { text-align: center; margin-bottom: 15px; display: flex; gap: 10px; justify-content: center; }
+  button { 
+    padding: 12px 20px; 
+    font-size: 16px; 
+    cursor: pointer; 
+    border: none; 
+    border-radius: 6px; 
+    color: #fff; 
+    font-weight: bold;
+  }
+  #btn-jan { background: #28a745; } /* Hijau = Lihat */
+  #btn-print { background: #007bff; } /* Biru = Print */
+  #btn-print:disabled { background: #aaa; cursor: not-allowed; }
+  iframe { width: 100%; height: 85vh; border: 1px solid #ddd; }
+  .info { text-align: center; color: #666; font-size: 14px; margin-top: 10px; }
+</style>
 </head>
 <body>
-  <div id="topbar">
-    <h1 id="judulCetak" class="text-lg font-bold">Loading...</h1>
-    <div class="flex gap-3">
-      <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg font-semibold text-sm">🖨️ Print</button>
-      <button onclick="window.close()" class="bg-slate-600 hover:bg-slate-700 px-5 py-2 rounded-lg font-semibold text-sm">✖ Tutup</button>
-    </div>
+<div class="container">
+  <h1>LAPORAN BKU JANUARI 2026</h1>
+  
+  <div class="btn-wrap">
+    <button id="btn-jan">1. Lihat Januari</button>
+    <button id="btn-print" disabled>2. Print Legal PDF</button>
   </div>
-  <iframe id="pdf-frame" src=""></iframe>
+
+  <iframe id="viewer" src="about:blank"></iframe>
+  <p class="info">Tip: Kalo mau hasil paling bagus, pake tombol `Print Legal PDF` jangan `Ctrl+P`</p>
+</div>
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const gid = params.get('gid');
-  const namaBulan = params.get('bulan') || 'BKU';
-
+  // === GANTI PUNYA LU DISINI ===
   const PUB_ID = '2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc';
+  const gidJan = '102046414'; // GID Sheet Lap.JAN26
   
-  // LINK PDF ASLI DARI GSheet
-  const pdfLinkAsli = `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=${gid}&single=true&output=pdf`;
+  // Link PDF Mentah dari Google. INI YANG LEGAL
+  const pdfLinkAsli = `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=${gidJan}&single=true&output=pdf`;
   
-  // KITA BUNGKUS PAKE GOOGLE VIEWER BIAR NAMPIL, GAK DOWNLOAD
-  const pdfUrl = `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(pdfLinkAsli)}`;
+  // Link buat Preview di Iframe
+  const pdfUrlViewer = `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(pdfLinkAsli)}`;
 
-  if(gid) {
-    document.getElementById('pdf-frame').src = pdfUrl;
-    document.getElementById('judulCetak').innerText = `LAPORAN BKU ${namaBulan.toUpperCase()} 2026`;
-    document.title = `LAPORAN BKU ${namaBulan.toUpperCase()} 2026`;
-  } else {
-    document.body.innerHTML = `<div class="flex h-screen items-center justify-center text-white text-2xl">Error: GID tidak ditemukan</div>`;
-  }
+  const btnJan = document.getElementById('btn-jan');
+  const btnPrint = document.getElementById('btn-print');
+  const viewer = document.getElementById('viewer');
+
+  // TOMBOL 1: CUMA BUAT LIHAT PREVIEW
+  btnJan.addEventListener('click', () => {
+    viewer.src = pdfUrlViewer;
+    btnPrint.disabled = false; // Aktifin tombol print
+  });
+
+  // TOMBOL 2: LANGSUNG PRINT PDF ASLI BIAR GAK BLANK
+  btnPrint.addEventListener('click', () => {
+    // Buka PDF Legal di tab baru
+    const win = window.open(pdfLinkAsli, '_blank');
+    if(win) {
+        // Kasih jeda 1.5 detik biar PDF ke-load, baru auto print
+        setTimeout(() => { 
+            win.print(); 
+        }, 1500);
+    } else {
+        alert('Pop-up diblokir lur. Izinkan pop-up dulu ya.');
+    }
+  });
+
 </script>
 </body>
 </html>
