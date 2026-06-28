@@ -22,7 +22,7 @@
   #btn-print { background: #007bff; } /* Biru = Print */
   #btn-print:disabled { background: #aaa; cursor: not-allowed; }
   iframe { width: 100%; height: 85vh; border: 1px solid #ddd; }
-  .info { text-align: center; color: #666; font-size: 14px; margin-top: 10px; }
+  .info { text-align: center; color: #e63946; font-size: 14px; margin-top: 10px; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -35,41 +35,41 @@
   </div>
 
   <iframe id="viewer" src="about:blank"></iframe>
-  <p class="info">Tip: Kalo mau hasil paling bagus, pake tombol `Print Legal PDF` jangan `Ctrl+P`</p>
+  <p class="info">PENTING: Jangan pake Ctrl+P. Wajib pake tombol `Print Legal PDF` biar gak blank & jadi Legal</p>
 </div>
 
 <script>
-  // === GANTI PUNYA LU DISINI ===
+  // === GANTI PUNYA LU DISINI SAJA ===
   const PUB_ID = '2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc';
-  const gidJan = '102046414'; // GID Sheet Lap.JAN26
+  const gidJan = '102046414'; // GID Lap.JAN26 - JANGAN DIUBAH
   
-  // Link PDF Mentah dari Google. INI YANG LEGAL
-  const pdfLinkAsli = `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=${gidJan}&single=true&output=pdf`;
+  // JURUS TIPU GOOGLE: TAMBAHIN &rnd=BIAR RENDER ULANG JADI LEGAL
+  function getPdfLink() {
+    const random = new Date().getTime(); // Angka ganti tiap detik
+    return `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=${gidJan}&single=true&output=pdf&rnd=${random}`;
+  }
   
-  // Link buat Preview di Iframe
-  const pdfUrlViewer = `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(pdfLinkAsli)}`;
-
   const btnJan = document.getElementById('btn-jan');
   const btnPrint = document.getElementById('btn-print');
   const viewer = document.getElementById('viewer');
 
   // TOMBOL 1: CUMA BUAT LIHAT PREVIEW
   btnJan.addEventListener('click', () => {
+    const pdfUrlViewer = `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(getPdfLink())}`;
     viewer.src = pdfUrlViewer;
     btnPrint.disabled = false; // Aktifin tombol print
   });
 
   // TOMBOL 2: LANGSUNG PRINT PDF ASLI BIAR GAK BLANK
   btnPrint.addEventListener('click', () => {
-    // Buka PDF Legal di tab baru
-    const win = window.open(pdfLinkAsli, '_blank');
+    const pdfAsli = getPdfLink(); // Ambil link baru lagi
+    const win = window.open(pdfAsli, '_blank');
     if(win) {
-        // Kasih jeda 1.5 detik biar PDF ke-load, baru auto print
         setTimeout(() => { 
-            win.print(); 
-        }, 1500);
+            win.print(); // Auto munculin dialog print
+        }, 1500); // Kasih jeda 1.5 detik biar PDF ke-load
     } else {
-        alert('Pop-up diblokir lur. Izinkan pop-up dulu ya.');
+        alert('Pop-up diblokir lur. Izinkan pop-up di browser dulu ya.');
     }
   });
 
