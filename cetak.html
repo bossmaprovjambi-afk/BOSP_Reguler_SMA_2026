@@ -8,51 +8,19 @@
   <style>
     body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #525659; }
     #pdf-frame { width: 100%; height: 100%; border: none; }
-
-    /* BAR ATAS NGUMPET - ANIMASI MACHO */
     #topbar {
-      position: fixed;
-      top: -60px; /* Sembunyiin dulu */
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: rgba(15, 23, 42, 0.9); /* Slate 900 transparan */
-      backdrop-filter: blur(10px);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 2rem;
-      transition: top 0.4s ease-in-out; /* Animasi turun */
-      z-index: 100;
+      position: fixed; top: -60px; left: 0; width: 100%; height: 60px;
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+      color: white; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; transition: top 0.4s ease-in-out; z-index: 100;
     }
-    body:hover #topbar {
-      top: 0; /* Muncul pas hover */
-    }
-
-    /* HILANGIN BAR PAS PRINT */
-    @media print {
-      #topbar { display: none!important; }
-      body { background-color: white; }
-    }
-
-    /* ANIMASI LOAD PDF */
-    #pdf-frame {
-      opacity: 0;
-      transform: scale(0.98) translateY(20px);
-      animation: fadeInUp 0.8s ease-out forwards;
-    }
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
-    }
+    body:hover #topbar { top: 0; }
+    @media print { #topbar { display: none!important; } body { background-color: white; }
+    #pdf-frame { opacity: 0; transform: scale(0.98) translateY(20px); animation: fadeInUp 0.8s ease-out forwards; }
+    @keyframes fadeInUp { to { opacity: 1; transform: scale(1) translateY(0); }
   </style>
 </head>
 <body>
-
-  <!-- BAR NGUMPET DI ATAS -->
   <div id="topbar">
     <h1 id="judulCetak" class="text-lg font-bold">Loading...</h1>
     <div class="flex gap-3">
@@ -60,21 +28,17 @@
       <button onclick="window.close()" class="bg-slate-600 hover:bg-slate-700 px-5 py-2 rounded-lg font-semibold text-sm">✖ Tutup</button>
     </div>
   </div>
-
-  <!-- PDF FULL SCREEN -->
   <iframe id="pdf-frame" src=""></iframe>
 
 <script>
-  // AMBIL GID DARI URL?gid=xxx
   const params = new URLSearchParams(window.location.search);
   const gid = params.get('gid');
   const namaBulan = params.get('bulan') || 'BKU';
 
-  // ID FILE GSheet LU
-  const FILE_ID = '1eqNg_aSXE8QFR1_HKELJUDtKZkzejonaVozv6XbS4mk';
-
-  // RUMUS LINK PDF AUTO DARI GSheet
-  const pdfUrl = `https://docs.google.com/spreadsheets/d/${FILE_ID}/export?format=pdf&gid=${gid}&portrait=true&fitw=true&top_margin=0.2&bottom_margin=0.2&left_margin=0.2&right_margin=0.2&sheetnames=false&printtitle=false&gridlines=false`;
+  // INI LINK PUB PUNYA LU LUR, UDAH BENER
+  const PUB_ID = '2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc';
+  
+  const pdfUrl = `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=${gid}&single=true&output=pdf`;
 
   if(gid) {
     document.getElementById('pdf-frame').src = pdfUrl;
@@ -84,6 +48,5 @@
     document.body.innerHTML = `<div class="flex h-screen items-center justify-center text-white text-2xl">Error: GID tidak ditemukan</div>`;
   }
 </script>
-
 </body>
 </html>
