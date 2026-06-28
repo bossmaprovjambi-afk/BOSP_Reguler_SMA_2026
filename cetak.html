@@ -30,7 +30,6 @@
     border-top: 8px solid var(--hijau-dinas);
     max-width: 520px;
   }
-  /* KOP SURAT LOGO KIRI DOANG */
   .kop {
     display: flex;
     align-items: center;
@@ -45,6 +44,7 @@
     height: 65px;
     object-fit: contain;
     flex-shrink: 0;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); /* Biar logonya 3D juga */
   }
   .kop-tengah h1 { 
     margin: 0; 
@@ -54,19 +54,10 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .kop-tengah p {
-    margin: 3px 0 0 0;
-    color: #444;
-    font-size: 13px;
-    font-weight: 600;
-  }
-  .sub {
-    color: #6c757d;
-    font-size: 14px;
-    margin-bottom: 28px;
-    font-weight: 500;
-  }
-  /* TOMBOL 3D BENERAN */
+  .kop-tengah p { margin: 3px 0 0 0; color: #444; font-size: 13px; font-weight: 600; }
+  .sub { color: #6c757d; font-size: 14px; margin-bottom: 28px; font-weight: 500; }
+  
+  /* TOMBOL 3D NEKEN */
   button { 
     padding: 16px 34px; font-size: 16px; cursor: pointer; border: none; border-radius: 10px; 
     background: linear-gradient(180deg, var(--emas) 0%, var(--emas-gelap) 100%);
@@ -74,28 +65,16 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    /* EFEK 3D */
-    box-shadow: 
-      0 6px 0 var(--emas-gelap), /* Bayangan bawah tebal */
-      0 8px 15px rgba(0,0,0,0.3); /* Bayangan luar */
+    box-shadow: 0 6px 0 var(--emas-gelap), 0 8px 15px rgba(0,0,0,0.3);
     transition: all 0.1s ease;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     border: 1px solid var(--emas);
   }
-  button:hover { 
-    transform: translateY(2px); 
-    box-shadow: 
-      0 4px 0 var(--emas-gelap),
-      0 6px 12px rgba(0,0,0,0.3);
-  }
-  button:active {
-    transform: translateY(6px); /* Keteken ke dalem */
-    box-shadow: 
-      0 0px 0 var(--emas-gelap),
-      0 2px 5px rgba(0,0,0,0.2);
-  }
+  button:hover { transform: translateY(2px); box-shadow: 0 4px 0 var(--emas-gelap), 0 6px 12px rgba(0,0,0,0.3); }
+  button:active { transform: translateY(6px); box-shadow: 0 0px 0 var(--emas-gelap), 0 2px 5px rgba(0,0,0,0.2); }
+  
   .info { 
     color: #333; 
     font-size: 12px; 
@@ -115,9 +94,9 @@
 <body>
 <div class="wrap">
   
-  <!-- KOP SURAT LOGO PROVINSI KIRI DOANG -->
+  <!-- LOGO PROVINSI JAMBI LU -->
   <div class="kop">
-    <img src="attachment://0" alt="Logo Provinsi Jambi"> <!-- LOGO LU -->
+    <img src="attachment://0" alt="Logo Provinsi Jambi">
     
     <div class="kop-tengah">
       <h1>LAPORAN REALISASI BOSP</h1>
@@ -128,7 +107,6 @@
 
   <p class="sub">TAHUN ANGGARAN 2026 | BULAN JANUARI</p>
   
-  <!-- LINK PDF 1 HALAMAN PAS -->
   <a href="https://docs.google.com/spreadsheets/d/1eqNg_asXE8QFR1_HKELJUDtKZkzejonaVozv6XbS4mk/export?format=pdf&gid=102046414&size=Legal&portrait=true&scale=2&top_margin=0.2&bottom_margin=0.2&left_margin=0.2&right_margin=0.2&printtitle=false&gridlines=false&fzr=false&AT_RP=min" target="_blank">
     <button>🖨️ CETAK PDF LEGAL</button>
   </a>
