@@ -15,17 +15,16 @@
 #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a, #1e293b); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.6s ease-out; }
 #loading-screen img { width: 140px; animation: pulse-glow 1.8s infinite ease-in-out; }
 @keyframes pulse-glow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px #facc15); } 50% { transform: scale(1.15); filter: drop-shadow(0 0 15px #facc15); }
-::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 10px; }
 * { scrollbar-width: thin; scrollbar-color: #475569 transparent; }
 
-/* BEKUIN HEADER TABEL AJA */
 .table-sticky thead th {
   position: sticky; top: 0; z-index: 10;
-  background-color: rgb(248 250 252); /* light mode */
+  background-color: rgb(248 250 252);
 }
 .dark.table-sticky thead th {
-  background-color: rgb(30 41 59); /* dark mode slate-800 */
+  background-color: rgb(30 41 59);
 }
   </style>
 </head>
@@ -34,14 +33,16 @@
 
   <div id="loading-screen"><img src="./logo-jambi.png" alt="Loading Sepucuk Jambi..."></div>
 
-  <div class="max-w-[1600px] mx-auto p-4 md:p-8">
+  <div class="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8"> 
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+      
+      <!-- KIRI: LOGO JAMBI + JUDUL -->
       <div class="flex items-center gap-4 text-center md:text-left">
-        <img src="./logo-jambi.png" alt="Logo Sepucuk Jambi" class="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-lg rounded-lg">
+        <img src="./logo-jambi.png" alt="Logo Sepucuk Jambi" class="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain drop-shadow-lg rounded-lg">
         <div>
-          <h1 id="judulUtama" class="text-2xl md:text-3xl font-bold">Dashboard Laporan BOSP Reguler SMA</h1>
-          <p class="text-lg md:text-xl font-semibold text-slate-600 dark:text-slate-300">Provinsi Jambi Tahun 2026</p>
-          <p class="text-sm text-slate-500 dark:text-slate-400">Update terakhir: <span id="lastUpdate">Loading...</span></p>
+          <h1 id="judulUtama" class="text-xl md:text-2xl lg:text-3xl font-bold">Dashboard Laporan BOSP Reguler SMA</h1>
+          <p class="text-base md:text-lg lg:text-xl font-semibold text-slate-600 dark:text-slate-300">Provinsi Jambi Tahun 2026</p>
+          <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">Update terakhir: <span id="lastUpdate">Loading...</span></p>
           <div class="flex flex-wrap gap-2 mt-2">
             <a href="./rekap.html" class="inline-block bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Lihat Rekap Kabupaten</a>
             <button id="exportBtn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Download Excel</button>
@@ -49,12 +50,18 @@
           </div>
         </div>
       </div>
-      <button id="theme-toggle" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-md hover:scale-110 transition absolute top-4 right-4 md:static">
-        <span id="theme-icon">🌙</span>
-      </button>
+
+      <!-- KAN: LOGO SMA + TOMBOL DARK MODE -->
+      <div class="flex items-center gap-4">
+        <img src="./logo_sma.png" alt="Logo SMA" class="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain drop-shadow-lg rounded-lg hidden md:block"> <!-- hidden di HP, muncul di PC -->
+        <button id="theme-toggle" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-md hover:scale-110 transition">
+          <span id="theme-icon">🌙</span>
+        </button>
+      </div>
+
     </div>
 
-    <!-- RUNNING TEXT SEJAJAR KOTAK PENCARIAN -->
+    <!-- RUNNING TEXT SEJAJAR -->
     <div class="w-full bg-slate-700 rounded-lg mb-6 px-3 py-2"> 
       <marquee 
         behavior="scroll" 
@@ -67,20 +74,20 @@
       </marquee>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">Total Sekolah</p><p id="total" class="text-4xl font-bold">0</p></div>
-      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">Lengkap 12/12</p><p id="sudah" class="text-4xl font-bold text-green-600 dark:text-green-400">0</p></div>
-      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">Belum Lengkap</p><p id="belum" class="text-4xl font-bold text-red-600 dark:text-red-400">0</p></div>
-      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">% Selesai</p><p id="persen" class="text-4xl font-bold text-blue-600 dark:text-blue-400">0%</p></div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">Total Sekolah</p><p id="total" class="text-3xl lg:text-4xl font-bold">0</p></div>
+      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">Lengkap 12/12</p><p id="sudah" class="text-3xl lg:text-4xl font-bold text-green-600 dark:text-green-400">0</p></div>
+      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">Belum Lengkap</p><p id="belum" class="text-3xl lg:text-4xl font-bold text-red-600 dark:text-red-400">0</p></div>
+      <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700"><p class="text-slate-500 dark:text-slate-400 text-sm">% Selesai</p><p id="persen" class="text-3xl lg:text-4xl font-bold text-blue-600 dark:text-blue-400">0%</p></div>
     </div>
 
     <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 mb-4"><input id="searchBox" type="text" placeholder="Cari NPSN, Nama Sekolah, atau Kabupaten..." class="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 placeholder-slate-400 dark:placeholder-slate-500"></div>
 
     <div class="card bg-white/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 overflow-x-auto my-2">
-      <table class="w-full text-sm table-sticky"><thead><tr class="text-left text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
-        <th class="p-3">No</th><th class="p-3">NPSN</th><th class="p-3">Nama Sekolah</th><th class="p-3">Status</th><th class="p-3">Kabupaten</th>
-        <th class="p-3 text-center" title="Januari">J</th><th class="p-3 text-center" title="Februari">F</th><th class="p-3 text-center" title="Maret">M</th><th class="p-3 text-center" title="April">A</th><th class="p-3 text-center" title="Mei">M</th><th class="p-3 text-center" title="Juni">J</th><th class="p-3 text-center" title="Juli">J</th><th class="p-3 text-center" title="Agustus">A</th><th class="p-3 text-center" title="September">S</th><th class="p-3 text-center" title="Oktober">O</th><th class="p-3 text-center" title="Nopember">N</th><th class="p-3 text-center" title="Desember">D</th>
-        <th class="p-3">STATUS</th><th class="p-3">WA</th>
+      <table class="w-full text-sm table-sticky min-w-[1200px]"><thead><tr class="text-left text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+        <th class="p-3 whitespace-nowrap">No</th><th class="p-3 whitespace-nowrap">NPSN</th><th class="p-3 whitespace-nowrap">Nama Sekolah</th><th class="p-3 whitespace-nowrap">Status</th><th class="p-3 whitespace-nowrap">Kabupaten</th>
+        <th class="p-3 text-center whitespace-nowrap" title="Januari">J</th><th class="p-3 text-center whitespace-nowrap" title="Februari">F</th><th class="p-3 text-center whitespace-nowrap" title="Maret">M</th><th class="p-3 text-center whitespace-nowrap" title="April">A</th><th class="p-3 text-center whitespace-nowrap" title="Mei">M</th><th class="p-3 text-center whitespace-nowrap" title="Juni">J</th><th class="p-3 text-center whitespace-nowrap" title="Juli">J</th><th class="p-3 text-center whitespace-nowrap" title="Agustus">A</th><th class="p-3 text-center whitespace-nowrap" title="September">S</th><th class="p-3 text-center whitespace-nowrap" title="Oktober">O</th><th class="p-3 text-center whitespace-nowrap" title="Nopember">N</th><th class="p-3 text-center whitespace-nowrap" title="Desember">D</th>
+        <th class="p-3 whitespace-nowrap">STATUS</th><th class="p-3 whitespace-nowrap">WA</th>
       </tr></thead><tbody id="tabelBody"><tr><td colspan="19" class="p-6 text-center text-slate-400">Loading...</td></tr></tbody></table>
     </div>
   </div>
