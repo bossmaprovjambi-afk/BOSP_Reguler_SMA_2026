@@ -5,121 +5,99 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cetak Laporan BOSP</title>
 <style>
-  :root { 
-    --hijau-dinas: #0A3D0A; 
-    --emas: #D4AF37;       
+  :root {
+    --hijau-dinas: #0A3D0A;
+    --emas: #D4AF37;
     --emas-gelap: #B8860B;
-    --biru-navy: #0D1B2A;   
+    --biru-navy: #00182A;
   }
-  body { 
-    margin: 0; 
-    background: linear-gradient(135deg, var(--biru-navy) 0%, #1B263B 100%); 
-    font-family: 'Segoe UI', 'Poppins', Arial, sans-serif; 
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, var(--biru-navy) 0%, #18263B 100%);
+    font-family: 'Segoe UI', 'Poppins', Arial, sans-serif;
     padding: 20px;
   }
-  .wrap { 
-    text-align: center; 
-    background: #fff; 
-    padding: 35px 40px; 
-    border-radius: 16px; 
-    box-shadow: 0 12px 35px rgba(0,0,0,0.4); 
+  .wrap {
+    background: #fff;
+    padding: 35px 40px;
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.4);
     border-top: 8px solid var(--hijau-dinas);
     max-width: 900px;
-    margin: 20px auto;
+    margin: auto;
   }
-  .kop {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid var(--hijau-dinas);
-    text-align: left;
+  header {
+    display:flex; 
+    align-items:center; 
+    gap:20px; 
+    margin-bottom:20px;
   }
-  .kop img {
-    width: 65px;
-    height: 65px;
-    object-fit: contain;
-    flex-shrink: 0;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+  header img { height:90px; }
+  header h2 { margin:0; color:var(--biru-navy); font-size:18px; }
+  header h3 { margin:0; color:var(--hijau-dinas); font-size:16px; }
+  header p { margin:0; font-size:14px; color:#333; }
+  hr { border:none; border-top:3px solid var(--hijau-dinas); margin:10px 0 20px; }
+
+  .btn-cetak {
+    background:var(--hijau-dinas); 
+    color:#fff; 
+    border:none; 
+    padding:12px 24px; 
+    border-radius:10px; 
+    font-weight:bold; 
+    font-size:15px;
+    box-shadow:0 4px 0 var(--emas-gelap); 
+    cursor:pointer; 
+    margin:20px 0;
+    transition:0.1s;
   }
-  .kop-tengah h1 { 
-    margin: 0; 
-    color: var(--hijau-dinas); 
-    font-size: 19px;
-    font-weight: 800;
-    text-transform: uppercase;
+  .btn-cetak:active {
+    box-shadow:0 2px 0 var(--emas-gelap);
+    transform:translateY(2px);
   }
-  .kop-tengah p { margin: 3px 0 0 0; color: #444; font-size: 13px; font-weight: 600; }
-  .sub { color: #6c757d; font-size: 14px; margin-bottom: 28px; font-weight: 500; }
-  
-  button { 
-    padding: 16px 34px; font-size: 16px; cursor: pointer; border: none; border-radius: 10px; 
-    background: linear-gradient(180deg, var(--emas) 0%, var(--emas-gelap) 100%);
-    color: var(--biru-navy); 
-    font-weight: 800;
-    text-transform: uppercase;
-    box-shadow: 0 6px 0 var(--emas-gelap), 0 8px 15px rgba(0,0,0,0.3);
-    transition: all 0.1s ease;
-  }
-  button:hover { transform: translateY(2px); box-shadow: 0 4px 0 var(--emas-gelap), 0 6px 12px rgba(0,0,0,0.3); }
-  button:active { transform: translateY(6px); box-shadow: 0 0px 0 var(--emas-gelap), 0 2px 5px rgba(0,0,0,0.2); }
-  
-  .pdf-box {
-    margin-top: 25px;
-    border: 3px solid var(--hijau-dinas);
-    border-radius: 8px;
-    overflow: hidden;
-    display: none;
-  }
-  .pdf-box iframe {
-    width: 100%;
-    height: 80vh;
-    border: none;
-  }
-  .info { 
-    color: #333; 
-    font-size: 12px; 
-    margin-top: 22px; 
-    font-weight: 600;
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 8px;
-    border-left: 5px solid var(--hijau-dinas);
+
+  table { width:100%; border-collapse: collapse; margin-top:15px; font-size:12px; }
+  table th, table td { border:1px solid #ccc; padding:8px; text-align:center; }
+  table th { background:var(--hijau-dinas); color:#fff; }
+
+  @media print {
+    body { background:#fff; padding:0; }
+    .wrap { box-shadow:none; border-top:none; border-radius:0; max-width:100%; padding:20px; }
+    .btn-cetak { display:none; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  
-  <div class="kop">
-    <img src="attachment://0" alt="Logo Provinsi Jambi">
-    <div class="kop-tengah">
-      <h1>LAPORAN REALISASI BOSP</h1>
-      <p>SMAS NASIONAL SARIPUTRA</p>
-      <p>KOTA JAMBI</p>
-    </div>
-  </div>
+  <div class="wrap">
+    
+    <header>
+      <img src="logo-jambi.png" alt="Logo Provinsi Jambi">
+      <div>
+        <h2>PEMERINTAH PROVINSI JAMBI</h2>
+        <h3>DINAS PENDIDIKAN</h3>
+        <p>LAPORAN REALISASI BOSP SMA TAHUN 2026</p>
+      </div>
+    </header>
+    <hr>
 
-  <p class="sub">TAHUN ANGGARAN 2026 | BULAN JANUARI</p>
-  
-  <button onclick="tampilkanPDF()">🖨️ LIHAT & CETAK PDF LEGAL</button>
-  
-  <div class="pdf-box" id="pdfViewer">
-    <!-- LINK PDF UKURAN DIKUNCI DI SINI. JANGAN DIUBAH LUR -->
-    <iframe src="https://docs.google.com/viewer?embedded=true&url=https://docs.google.com/spreadsheets/d/1eqNg_asXE8QFR1_HKELJUDtKZkzejonaVozv6XbS4mk/export?format=pdf&gid=102046414&size=Legal&portrait=true&scale=2&top_margin=0.2&bottom_margin=0.2&left_margin=0.2&right_margin=0.2&printtitle=false&gridlines=false&fzr=false&AT_RP=min"></iframe>
-  </div>
-  
-  <div class="info">
-    ✅ Ukuran: Legal 8.5x14 | 1 Halaman | Fit to Width | DIKUNCI
-  </div>
-</div>
+    <button class="btn-cetak" onclick="window.print()">🖨️ CETAK LAPORAN</button>
 
-<script>
-function tampilkanPDF() {
-  document.getElementById('pdfViewer').style.display = 'block';
-  document.getElementById('pdfViewer').scrollIntoView({ behavior: 'smooth' });
-}
-</script>
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Kode Rek</th>
+          <th>Uraian</th>
+          <th>Anggaran</th>
+          <th>Realisasi</th>
+          <th>Sisa</th>
+        </tr>
+      </thead>
+      <tbody id="isiTabel">
+        <tr><td colspan="6">Data akan diisi otomatis dari Excel</td></tr>
+      </tbody>
+    </table>
+
+  </div>
 </body>
 </html>
