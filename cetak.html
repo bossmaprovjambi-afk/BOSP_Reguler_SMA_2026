@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mesin Cetak Laporan BOSP - Dinas Jambi</title>
+<title>Cetak Laporan Bulan - Dinas Jambi</title>
 <style>
   :root{
     --navy:#00182A;
@@ -13,6 +13,7 @@
     --text:#334155;
     --text-muted:#64748B;
     --bg:#F8FAFC;
+    --input-bg:#F1F5F9;
   }
   *{box-sizing:border-box}
   body{
@@ -41,7 +42,6 @@
   }
   .sidebar-head img{
     width:80px; height:auto; margin-bottom:12px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,.1));
   }
   .sidebar-head h2{
     font-size:16px; font-weight:700; 
@@ -62,17 +62,13 @@
     border-left:4px solid transparent;
     transition:.2s;
   }
-  .menu li a:hover{
-    background:#F8FAFC;
-  }
+  .menu li a:hover{background:#F8FAFC;}
   .menu li a.active{
     background:var(--blue-active);
     border-left:4px solid var(--blue-line);
     color:var(--navy); font-weight:700;
   }
-  .menu svg{
-    width:20px; height:20px; flex-shrink:0;
-  }
+  .menu svg{width:20px; height:20px; flex-shrink:0;}
 
   /* ===== KONTEN KAN ===== */
   .main{
@@ -81,38 +77,39 @@
   .card{
     background:#FFF; border-radius:12px;
     box-shadow:0 4px 16px rgba(0,0,0,.06);
-    padding:28px; max-width:900px; margin:0 auto;
+    padding:28px; max-width:600px; margin:0 auto;
     border-top:4px solid var(--gold);
   }
-  .card-head{
-    display:flex; align-items:center; gap:16px; 
-    border-bottom:1px solid #F1F5F9; padding-bottom:16px; margin-bottom:20px;
+  .card h1{
+    font-size:22px; color:var(--navy); margin:0 0 4px;
+    border-bottom:1px solid #E2E8F0; padding-bottom:12px;
   }
-  .card-head img{width:60px; height:auto;}
-  .card-head h1{font-size:20px; color:var(--navy); margin:0;}
-  .card-head p{font-size:13px; color:var(--text-muted); margin:2px 0 0;}
+  .card h2{font-size:18px; color:var(--text); margin:16px 0 20px; font-weight:600;}
 
+  /* ===== FORM ===== */
   .form-group{margin-bottom:16px;}
-  label{font-size:13px; font-weight:600; color:var(--text-muted);}
-  input[type=text]{
+  label{font-size:13px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;}
+  input[type=text], select{
     width:100%; padding:12px; border:1px solid #CBD5E1; 
-    border-radius:8px; font-size:14px; margin-top:6px;
+    border-radius:8px; font-size:14px; background:var(--input-bg);
   }
-  input:focus{outline:none; border-color:var(--blue-line); box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+  input:focus, select:focus{outline:none; border-color:var(--blue-line); box-shadow:0 0 0 3px rgba(37,99,235,.1);}
 
-  /* ===== TOMBOL 3D ===== */
+  /* ===== TOMBOL 3D HIJAU DINAS ===== */
   .btn{
-    padding:12px 24px; border:none; border-radius:8px;
-    font-size:14px; font-weight:700; cursor:pointer;
+    width:100%;
+    padding:14px 24px; border:none; border-radius:8px;
+    font-size:15px; font-weight:700; cursor:pointer;
     transition: all .1s ease;
     box-shadow: 0 4px 0 #0A3D0A;
     background:#0A3D0A; color:#FFF;
+    margin-top:10px;
   }
   .btn:hover{background:#0F4F0F; transform:translateY(2px); box-shadow: 0 2px 0 #0A3D0A;}
   .btn:active{transform:translateY(4px); box-shadow: 0 0 0 #0A3D0A;}
   .btn:disabled{background:#94A3B8; box-shadow: 0 4px 0 #64748B; cursor:not-allowed;}
 
-  @media print{.sidebar, .form-group{display:none} .main{padding:0}}
+  @media print{.sidebar{display:none} .main{padding:0}}
 </style>
 </head>
 <body>
@@ -125,53 +122,62 @@
     </div>
     <ul class="menu">
       <li><a href="#" class="active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        Cetak Laporan Bulan
+      </a></li>
+      <li><a href="#">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        Status Kirim
-      </a></li>
-      <li><a href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
-        Laporan BKU
-      </a></li>
-      <li><a href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-        Notifications
-      </a></li>
-      <li><a href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
-        Rkas Awal
-      </a></li>
-      <li><a href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9.2h3V19H5zM10.6 5h3v14h-3zm5.4 8h3v6h-3z"/></svg>
-        Stats
+        Dashboard Utama
       </a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="card">
-      <div class="card-head">
-        <img src="logo-jambi.png" alt="Logo">
-        <div>
-          <h1>Mesin Cetak Laporan BOSP 2026</h1>
-          <p>Masukkan NPSN untuk cek status dan cetak laporan</p>
-        </div>
-      </div>
+      <h1>Cetak Laporan Bulan</h1>
+      <h2>Dashboard Utama</h2>
       
       <div class="form-group">
-        <label>NPSN Sekolah</label>
+        <label for="npsn">Masukkan NPSN Sekolah</label>
         <input type="text" id="npsn" placeholder="Contoh: 10504558">
       </div>
+
+      <div class="form-group">
+        <label for="bulan">Pilih Bulan Cetak</label>
+        <select id="bulan">
+          <option value="">-- Pilih Bulan --</option>
+          <option value="JAN26">Januari 2026</option>
+          <option value="FEB26">Februari 2026</option>
+          <option value="MAR26">Maret 2026</option>
+          <option value="APR26">April 2026</option>
+          <option value="MEI26">Mei 2026</option>
+          <option value="JUN26">Juni 2026</option>
+          <option value="JUL26">Juli 2026</option>
+          <option value="AGT26">Agustus 2026</option>
+          <option value="SEP26">September 2026</option>
+          <option value="OKT26">Oktober 2026</option>
+          <option value="NOV26">November 2026</option>
+          <option value="DES26">Desember 2026</option>
+        </select>
+      </div>
       
-      <button class="btn" onclick="cekData()">CEK DATA</button>
-      <button class="btn" id="btnCetak" disabled>CETAK LAP JAN26</button>
+      <button class="btn" onclick="cekDanCetak()">CETAK LAPORAN</button>
     </div>
   </main>
 
 <script>
-function cekData(){
-  // Nanti diisi logic baca CSV Data Masuk
-  alert('Nanti disini cek NPSN ke CSV Data Masuk');
-  document.getElementById('btnCetak').disabled = false;
+function cekDanCetak(){
+  const npsn = document.getElementById('npsn').value;
+  const bulan = document.getElementById('bulan').value;
+  
+  if(!npsn || !bulan){
+    alert('NPSN dan Bulan wajib diisi lur!');
+    return;
+  }
+  
+  // Nanti diisi: Cek NPSN ke CSV Data Masuk
+  // Kalo ada, baru window.print()
+  alert(`Nanti cetak NPSN: ${npsn} Bulan: ${bulan}`);
 }
 </script>
 
