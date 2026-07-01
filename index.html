@@ -5,14 +5,14 @@
 <title>Dashboard BOSP SMA Jambi 2026</title>
 <style>
   :root{
-    --navy:#0A2947;--hijau:#10b981;--merah:#ef4444;--biru:#3b82f6;--kuning:#f59e0b;--orange:#f97316;
+    --navy:#0A2947;--hijau:#10b981;--merah:#ef4444;--biru:#3b82f6;--kuning:#f59e0b;
     --bg:#f4f7f9;--card:#ffffff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--shadow:0 8px 24px rgba(0,0,0,.06);
   }
   [data-theme="dark"]{
     --bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--border:#334155;--shadow:0 8px 24px rgba(0,0,0,.4);
     --navy:#3b82f6;
   }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif;transition:.2s}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif;transition:.3s}
   body{display:flex;min-height:100vh;background:var(--bg);color:var(--text)}
   
 .sidebar{width:260px;background:var(--card);border-right:1px solid var(--border);padding:24px 20px;display:flex;flex-direction:column;gap:14px;flex-shrink:0;height:100vh;position:sticky;top:0}
@@ -51,18 +51,17 @@
 
   table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
   thead{position:sticky;top:0;z-index:10}
-  th{background:var(--border);padding:14px 10px;text-align:center;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  th{background:var(--border);padding:14px 10px;text-align:center;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
   th:first-child{border-radius:12px 0 0 12px}th:last-child{border-radius:0 12px 12px 0}
-  td{border-bottom:1px solid var(--border);padding:12px 8px;text-align:center}
+  td{border-bottom:1px solid var(--border);padding:12px 10px;text-align:center}
   tbody tr:last-child td{border-bottom:none}
   tbody tr:hover td{background:var(--bg)}
-  td.kiri{text-align:left;font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  td.kiri{text-align:left;font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ok{color:var(--hijau);font-weight:800;font-size:18px}
 .kosong{color:var(--border);font-size:18px}
-.status-badge{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;display:inline-block;min-width:60px}
-.status-negeri{background:var(--hijau)}.status-swasta{background:var(--orange)}
-.wa-badge{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--navy);color:#fff;display:flex;align-items:center;gap:4px;justify-content:center}
-  [data-theme="dark"].wa-badge{background:var(--biru)}
+.status-badge{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;display:inline-block}
+.status-aktif{background:var(--hijau)}.status-swasta{background:var(--kuning)}
+.wa-badge{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--navy);color:#fff}
 .table-wrap{overflow-x:auto;margin-top:18px;border:1px solid var(--border);border-radius:16px;background:var(--card)}
 .badge{background:var(--navy);color:#fff;padding:5px 12px;border-radius:8px;font-size:13px;font-weight:700}
 .page{display:none}.page.active{display:block}
@@ -127,7 +126,7 @@ btn.onclick=()=>{const t=document.documentElement.getAttribute('data-theme')==='
 function updateClock(){const now=new Date();document.getElementById('jam').textContent=now.toLocaleTimeString('id-ID',{timeZone:'Asia/Jakarta'});document.getElementById('tanggal').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Jakarta'});}
 setInterval(updateClock,1000);updateClock();
 document.querySelectorAll('.menu a').forEach(a=>{a.onclick=e=>{e.preventDefault();document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(a.dataset.page).classList.add('active');}});
-const clean=(s)=>String(s||'').toLowerCase().replace(/[^a-z]/g,'').trim();
+const clean=(s)=>s.toLowerCase().replace(/[^a-z]/g,'').trim();
 
 async function loadData(){
   if(dataSekolah.length>0)return;
@@ -138,15 +137,12 @@ async function loadData(){
 
     const iNo=header.indexOf('no');const iNPSN=header.indexOf('npsn');const iNama=header.indexOf('namasekolah');
     const iStatus=header.indexOf('status');const iKab=header.indexOf('kabupaten');const iWa=header.indexOf('statuskirim');
+    // KECAMATAN DIBUANG: gak dipake sama sekali
     const bulan={jan:header.indexOf('januari'),feb:header.indexOf('februari'),mar:header.indexOf('maret'),apr:header.indexOf('april'),mei:header.indexOf('mei'),jun:header.indexOf('juni'),jul:header.indexOf('juli'),agt:header.indexOf('agustus'),sep:header.indexOf('september'),okt:header.indexOf('oktober'),nov:header.indexOf('nopember'),des:header.indexOf('desember')};
 
     dataSekolah=data.slice(1).filter(r=>r[iNPSN]).map(r=>({
-      no:r[iNo]?.toString().trim()||'',
-      npsn:r[iNPSN]?.toString().trim()||'-',
-      nama:r[iNama]?.toString().trim()||'-',
-      status:r[iStatus]?.toString().trim()||'',
-      kab:r?.toString().trim()||'-', // FIX UTAMA: KEMARIN R DOANG
-      wa:r[iWa]?.toString().trim()||'',
+      no:r[iNo]?.toString().trim()||'',npsn:r[iNPSN]?.toString().trim()||'-',nama:r[iNama]?.toString().trim()||'-', // Cuma ambil Nama Sekolah
+      status:r[iStatus]?.toString().trim()||'',kab:r?.toString().trim()||'-',wa:r[iWa]?.toString().trim()||'',
       jan:bulan.jan>-1?r[bulan.jan].toString().trim():'',feb:bulan.feb>-1?r[bulan.feb].toString().trim():'',mar:bulan.mar>-1?r[bulan.mar].toString().trim():'',apr:bulan.apr>-1?r[bulan.apr].toString().trim():'',
       mei:bulan.mei>-1?r[bulan.mei].toString().trim():'',jun:bulan.jun>-1?r[bulan.jun].toString().trim():'',jul:bulan.jul>-1?r[bulan.jul].toString().trim():'',agt:bulan.agt>-1?r[bulan.agt].toString().trim():'',
       sep:bulan.sep>-1?r[bulan.sep].toString().trim():'',okt:bulan.okt>-1?r[bulan.okt].toString().trim():'',nov:bulan.nov>-1?r[bulan.nov].toString().trim():'',des:bulan.des>-1?r[bulan.des].toString().trim():''
@@ -168,16 +164,13 @@ function renderTabel(){
   document.getElementById('statBelum').textContent=belum;
   document.getElementById('statPersen').textContent=persen+'%';
   const body=document.querySelector('#tabelStatus tbody');
-  body.innerHTML=dataSekolah.map(s=>`
-  <tr>
-    <td>${s.no}</td>
-    <td class="kiri">${s.npsn}</td>
-    <td class="kiri" title="${s.nama}">${s.nama}</td>
-    <td><span class="status-badge ${s.status.toLowerCase().includes('negeri')?'status-negeri':'status-swasta'}">${s.status||'-'}</span></td>
+  body.innerHTML=dataSekolah.map(s=>`<tr>
+    <td>${s.no}</td><td class="kiri">${s.npsn}</td><td class="kiri" title="${s.nama}">${s.nama}</td> // title biar hover full
+    <td><span class="status-badge ${s.status.toLowerCase().includes('negeri')?'status-aktif':'status-swasta'}">${s.status||'-'}</span></td>
     <td class="kiri">${s.kab}</td>
     ${['jan','feb','mar','apr','mei','jun','jul','agt','sep','okt','nov','des'].map(m=>`<td>${s[m]&&s[m]!=='BELUM KIRIM'?'<span class="ok">✓</span>':'<span class="kosong">○</span>'}</td>`).join('')}
-    <td><span class="wa-badge">⚠️ ${s.wa||'-'}</span></td>
-  </tr>`).join(''); // FIX: GAK ADA KOMENTAR // DISINI LAGI
+    <td><span class="wa-badge">${s.wa||'-'}</span></td>
+  </tr>`).join('');
 }
 loadData();
 </script>
