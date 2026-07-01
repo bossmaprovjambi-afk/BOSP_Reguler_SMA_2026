@@ -2,7 +2,6 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.ico">
 <title>Dashboard BOSP SMA Jambi 2026</title>
 <style>
   :root{--navy:#0A2947;--beige:#F5EADF;--sage:#D1D7C5;--hijau:#16a34a;--merah:#dc2626;--biru:#2563eb;}
@@ -50,10 +49,7 @@ td.kiri{text-align:left;font-weight:600}
   <aside class="sidebar">
     <div class="logo">
       <img src="https://i.ibb.co.com/ppSq2Ly/logo-jambi.png" alt="Logo">
-      <div>
-        <h2>Dinas Pendidikan<br>Provinsi Jambi</h2>
-        <p>Bidang Pembinaan SMA</p>
-      </div>
+      <div><h2>Dinas Pendidikan<br>Provinsi Jambi</h2><p>Bidang Pembinaan SMA</p></div>
     </div>
     <ul class="menu">
       <li><a href="#" class="active" data-page="status">📊 Status Kirim</a></li>
@@ -69,96 +65,52 @@ td.kiri{text-align:left;font-weight:600}
       <div class="card">
         <div class="card-header">
           <h3>📊 Status Kirim Laporan BOSP SMA 2026</h3>
-          <div class="clock">
-            <div id="jam">00:00:00</div>
-            <div id="tanggal">Senin, 5 Mei 2026</div>
-          </div>
+          <div class="clock"><div id="jam">00:00:00</div><div id="tanggal">Senin, 5 Mei 2026</div></div>
         </div>
         <p class="sub">Total Sekolah: <span class="badge" id="totalSekolah">0</span></p>
-
         <div class="stats-grid">
           <div class="stat-card stat-total"><div class="angka" id="statTotal">0</div><div class="label">Total Sekolah</div></div>
           <div class="stat-card stat-sudah"><div class="angka" id="statSudah">0</div><div class="label">Sudah Kirim</div></div>
           <div class="stat-card stat-belum"><div class="angka" id="statBelum">0</div><div class="label">Belum Kirim</div></div>
           <div class="stat-card stat-persen"><div class="angka" id="statPersen">0%</div><div class="label">Progress Kirim</div></div>
         </div>
-
         <div class="table-wrap">
           <table id="tabelStatus">
-            <thead>
-              <tr>
-                <th>No</th><th class="kiri">NPSN</th><th class="kiri" style="min-width:180px">Nama Sekolah</th>
-                <th>Status</th><th class="kiri">Kabupaten</th>
-                <th>J</th><th>F</th><th>M</th><th>A</th><th>M</th><th>J</th><th>J</th><th>A</th><th>S</th><th>O</th><th>N</th><th>D</th>
-                <th>Status Kirim WA</th>
-              </tr>
-            </thead>
+            <thead><tr><th>No</th><th class="kiri">NPSN</th><th class="kiri" style="min-width:180px">Nama Sekolah</th><th>Status</th><th class="kiri">Kabupaten</th><th>J</th><th>F</th><th>M</th><th>A</th><th>M</th><th>J</th><th>J</th><th>A</th><th>S</th><th>O</th><th>N</th><th>D</th><th>Status Kirim WA</th></tr></thead>
             <tbody><tr><td colspan="18">⏳ Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
     </section>
-    <section id="bku" class="page"><div class="card"><h3>📄 Laporan BKU</h3></div></section>
-    <section id="rkas" class="page"><div class="card"><h3>📘 Rkas Awal</h3></div></section>
-    <section id="stats" class="page"><div class="card"><h3>📈 Stats</h3></div></section>
-    <section id="rekap" class="page"><div class="card"><h3>🗓️ Rekap</h3></div></section>
-    <section id="belanja" class="page"><div class="card"><h3>💰 Belanja</h3></div></section>
   </main>
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNn0ZAz-vXzFtyT2PTWH05V-RjZtHI4AK3VfOhqOc0bAxo2X_kp21i96tBBjMs04_XWs_0-Sa_nCSc/pub?gid=147011660&single=true&output=csv";
+const PROXY_URL = "https://api.allorigins.win/raw?url="; // Proxy anti CORS
 let dataSekolah = [];
 
-// Jam Digital
-function updateClock(){
-  const now=new Date();
-  document.getElementById('jam').textContent=now.toLocaleTimeString('id-ID');
-  document.getElementById('tanggal').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-}
+function updateClock(){const now=new Date();document.getElementById('jam').textContent=now.toLocaleTimeString('id-ID',{timeZone:'Asia/Jakarta'});document.getElementById('tanggal').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Jakarta'});}
 setInterval(updateClock,1000);updateClock();
-
 document.querySelectorAll('.menu a').forEach(a=>{a.onclick=e=>{e.preventDefault();document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(a.dataset.page).classList.add('active');}});
-
 const clean=(s)=>s.toLowerCase().replace(/^[a-z]\./,'').trim();
 
-// PARSER CSV BENERAN. Tahan koma di dalam ""
-function parseCSV(text){
-  const rows=[];let row=[],cell='',inQuote=false;
-  for(let i=0;i<text.length;i++){
-    const c=text[i],n=text[i+1];
-    if(c=='"'){if(inQuote&&n=='"'){cell+='"';i++}else inQuote=!inQuote}
-    else if(c==','&&!inQuote){row.push(cell);cell=''}
-    else if(c=='\n'&&!inQuote){row.push(cell);rows.push(row);row=[];cell=''}
-    else{cell+=c}
-  }
-  if(cell||row.length){row.push(cell);rows.push(row)}
-  return rows;
-}
+function parseCSV(text){const rows=[];let row=[],cell='',inQuote=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c=='"'){if(inQuote&&n=='"'){cell+='"';i++}else inQuote=!inQuote}else if(c==','&&!inQuote){row.push(cell);cell=''}else if((c=='\n'||c=='\r')&&!inQuote){if(cell||row.length){row.push(cell);rows.push(row);row=[];cell=''}}else{cell+=c}}if(cell||row.length){row.push(cell);rows.push(row)}return rows;}
 
 async function loadData(){
   if(dataSekolah.length>0)return;
   try{
-    const res=await fetch(CSV_URL+'&t='+Date.now());
+    const res=await fetch(PROXY_URL+encodeURIComponent(CSV_URL+'&t='+Date.now())); // Pake proxy
+    if(!res.ok)throw new Error('HTTP '+res.status);
     const txt=await res.text();
-    const rows=parseCSV(txt.trim()); // Pake parser beneran
+    const rows=parseCSV(txt.trim());
     const header=rows[0].map(clean);
-
     const iNo=header.indexOf('no');const iNPSN=header.indexOf('npsn');const iNama=header.indexOf('nama sekolah');
     const iStatus=header.indexOf('status');const iKab=header.indexOf('kabupaten');const iWa=header.indexOf('status kirim');
-    const bulan={jan:header.indexOf('januari'),feb:header.indexOf('februari'),mar:header.indexOf('maret'),apr:header.indexOf('april'),
-    mei:header.indexOf('mei'),jun:header.indexOf('juni'),jul:header.indexOf('juli'),agt:header.indexOf('agustus'),
-    sep:header.indexOf('september'),okt:header.indexOf('oktober'),nov:header.indexOf('nopember'),des:header.indexOf('desember')};
-
-    dataSekolah=rows.slice(1).filter(r=>r[iNPSN]).map(r=>({
-      no:r[iNo]?.trim()||'',npsn:r[iNPSN]?.trim()||'-',nama:r[iNama]?.trim()||'-',status:r[iStatus]?.trim()||'',
-      kab:r?.trim()||'-',wa:r[iWa]?.trim()||'',
-      jan:bulan.jan>-1?r[bulan.jan].trim():'',feb:bulan.feb>-1?r[bulan.feb].trim():'',mar:bulan.mar>-1?r[bulan.mar].trim():'',apr:bulan.apr>-1?r[bulan.apr].trim():'',
-      mei:bulan.mei>-1?r[bulan.mei].trim():'',jun:bulan.jun>-1?r[bulan.jun].trim():'',jul:bulan.jul>-1?r[bulan.jul].trim():'',agt:bulan.agt>-1?r[bulan.agt].trim():'',
-      sep:bulan.sep>-1?r[bulan.sep].trim():'',okt:bulan.okt>-1?r[bulan.okt].trim():'',nov:bulan.nov>-1?r[bulan.nov].trim():'',des:bulan.des>-1?r[bulan.des].trim():''
-    }));
+    const bulan={jan:header.indexOf('januari'),feb:header.indexOf('februari'),mar:header.indexOf('maret'),apr:header.indexOf('april'),mei:header.indexOf('mei'),jun:header.indexOf('juni'),jul:header.indexOf('juli'),agt:header.indexOf('agustus'),sep:header.indexOf('september'),okt:header.indexOf('oktober'),nov:header.indexOf('nopember'),des:header.indexOf('desember')};
+    dataSekolah=rows.slice(1).filter(r=>r[iNPSN]).map(r=>({no:r[iNo]?.trim()||'',npsn:r[iNPSN]?.trim()||'-',nama:r[iNama]?.trim()||'-',status:r[iStatus]?.trim()||'',kab:r?.trim()||'-',wa:r[iWa]?.trim()||'',jan:bulan.jan>-1?r[bulan.jan].trim():'',feb:bulan.feb>-1?r[bulan.feb].trim():'',mar:bulan.mar>-1?r[bulan.mar].trim():'',apr:bulan.apr>-1?r[bulan.apr].trim():'',mei:bulan.mei>-1?r[bulan.mei].trim():'',jun:bulan.jun>-1?r[bulan.jun].trim():'',jul:bulan.jul>-1?r[bulan.jul].trim():'',agt:bulan.agt>-1?r[bulan.agt].trim():'',sep:bulan.sep>-1?r[bulan.sep].trim():'',okt:bulan.okt>-1?r[bulan.okt].trim():'',nov:bulan.nov>-1?r[bulan.nov].trim():'',des:bulan.des>-1?r[bulan.des].trim():''}));
     renderTabel();
   }catch(e){
-    console.error(e);
-    document.querySelector('#tabelStatus tbody').innerHTML=`<tr><td colspan="18" style="color:red">❌ Gagal load data. Cek console F12</td></tr>`
+    console.error('ERROR LOAD DATA:',e); // Log biar ketauan
+    document.querySelector('#tabelStatus tbody').innerHTML=`<tr><td colspan="18" style="color:red">❌ Gagal load data. Error: ${e.message}. Coba Solusi 1 Apps Script.</td></tr>`
   }
 }
 
@@ -166,22 +118,13 @@ function renderTabel(){
   const total=dataSekolah.length;
   const sudah=dataSekolah.filter(s=>['jan','feb','mar','apr','mei','jun','jul','agt','sep','okt','nov','des'].every(m=>s[m])).length;
   const belum=total-sudah;const persen=total>0?((sudah/total)*100).toFixed(1):0;
-
   document.getElementById('totalSekolah').textContent=total;
   document.getElementById('statTotal').textContent=total;
   document.getElementById('statSudah').textContent=sudah;
   document.getElementById('statBelum').textContent=belum;
   document.getElementById('statPersen').textContent=persen+'%';
-
   const body=document.querySelector('#tabelStatus tbody');
-  body.innerHTML=dataSekolah.map(s=>`
-    <tr>
-      <td>${s.no}</td><td class="kiri">${s.npsn}</td><td class="kiri">${s.nama}</td>
-      <td><span class="status-badge ${s.status.toLowerCase().includes('aktif')?'status-aktif':'status-tidak'}">${s.status||'-'}</span></td>
-      <td class="kiri">${s.kab}</td>
-      ${['jan','feb','mar','apr','mei','jun','jul','agt','sep','okt','nov','des'].map(m=>`<td>${s[m]?'<span class="ok">✓</span>':'<span class="kosong">○</span>'}</td>`).join('')}
-      <td><span class="wa-badge">${s.wa||'-'}</span></td>
-    </tr>`).join('');
+  body.innerHTML=dataSekolah.map(s=>`<tr><td>${s.no}</td><td class="kiri">${s.npsn}</td><td class="kiri">${s.nama}</td><td><span class="status-badge ${s.status.toLowerCase().includes('aktif')?'status-aktif':'status-tidak'}">${s.status||'-'}</span></td><td class="kiri">${s.kab}</td>${['jan','feb','mar','apr','mei','jun','jul','agt','sep','okt','nov','des'].map(m=>`<td>${s[m]?'<span class="ok">✓</span>':'<span class="kosong">○</span>'}</td>`).join('')}<td><span class="wa-badge">${s.wa||'-'}</span></td></tr>`).join('');
 }
 loadData();
 </script>
