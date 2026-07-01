@@ -5,49 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard BOSP SMA Jambi 2026</title>
 <style>
-  :root{--biru:#1d4ed8;--biru-gelap:#1e3a8a;--abu:#f1f5f9;--border:#e2e8f0;--teks:#1e293b;--hijau:#16a34a;}
+  :root{--biru:#1d4ed8;--abu:#f1f5f9;--border:#e2e8f0;--teks:#1e293b;--hijau:#16a34a;}
   *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}
   body{display:flex;min-height:100vh;background:var(--abu);color:var(--teks)}
   /* SIDEBAR PUTIH */
- .sidebar{width:260px;background:#fff;border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:12px;flex-shrink:0}
- .sidebar.logo{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--border)}
- .sidebar.logo img{width:40px;height:40px;object-fit:contain}
- .sidebar.logo h2{font-size:16px;font-weight:700}
- .menu{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:8px}
- .menu a{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;text-decoration:none;color:#475569;font-weight:600;transition:.2s}
- .menu a:hover{background:var(--abu)}
- .menu a.active{background:var(--biru);color:#fff;box-shadow:0 4px 10px rgba(29,78,216,.3)}
+.sidebar{width:260px;background:#fff;border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:12px;flex-shrink:0;height:100vh;position:sticky;top:0}
+.sidebar.logo{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.sidebar.logo img{width:48px;height:48px;object-fit:contain} /* Gue gedein dikit biar 3D nya nampol */
+.sidebar.logo h2{font-size:16px;font-weight:700;line-height:1.3}
+.menu{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:8px;overflow-y:auto}
+.menu a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;text-decoration:none;color:#475569;font-weight:600;font-size:14px;transition:.2s}
+.menu a:hover{background:var(--abu)}
+.menu a.active{background:var(--biru);color:#fff;box-shadow:0 4px 10px rgba(29,78,216,.3)}
   /* KONTEN PUTIH */
- .main{flex:1;padding:24px;overflow-y:auto;background:#fff}
- .page{display:none}
- .page.active{display:block;animation:fade.3s}
-  @keyframes fade{from{opacity:0;transform:translateY(8px)}}
- .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
- .card h3{font-size:18px;margin-bottom:16px}
-  /* FORM CETAK */
- .form-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
-  input,select{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:14px}
-  button{background:var(--hijau);color:#fff;border:none;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer;transition:.2s}
-  button:hover{filter:brightness(1.1)}
-  button:disabled{opacity:.6;cursor:not-allowed}
+.main{flex:1;padding:24px;overflow-y:auto;background:#fff}
+.page{display:none}
+.page.active{display:block;animation:fade.3s}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card h3{font-size:18px;margin-bottom:16px;font-weight:700}
   /* TABEL DASHBOARD */
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{border:1px solid var(--border);padding:8px;text-align:center;white-space:nowrap}
-  th{background:var(--abu);position:sticky;top:0;z-index:1}
+  th{background:var(--abu);position:sticky;top:0;z-index:1;font-weight:700}
   td.kiri{text-align:left;font-weight:600}
- .ok{color:var(--hijau);font-weight:700}
- .kosong{color:#94a3b8}
- .table-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--border);border-radius:12px}
-  /* RESPONSIVE */
-  @media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;flex-direction:row;overflow-x:auto}.menu{flex-direction:row}.main{padding:16px}}
+.ok{color:var(--hijau);font-weight:700;font-size:16px}
+.kosong{color:#94a3b8;font-size:14px}
+.table-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--border);border-radius:12px}
+  @media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;height:auto;position:relative}.menu{flex-direction:row;overflow-x:auto}.main{padding:16px}}
 </style>
 </head>
 <body>
 
-  <!-- SIDEBAR PUTIH -->
+  <!-- SIDEBAR PUTIH + LOGO 3D BARU -->
   <aside class="sidebar">
     <div class="logo">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Lambang_Provinsi_Jambi.png/480px-Lambang_Provinsi_Jambi.png" alt="Logo Jambi">
+      <img src="attachment://0" alt="Logo Sepucuk Jambi"> <!-- INI LOGO BARU LU LUR -->
       <h2>Dinas Pendidikan<br>Jambi</h2>
     </div>
     <ul class="menu">
@@ -55,12 +48,13 @@
       <li><a href="#" data-page="bku">📄 Laporan BKU</a></li>
       <li><a href="#" data-page="rkas">📘 Rkas Awal</a></li>
       <li><a href="#" data-page="stats">📈 Stats</a></li>
+      <li><a href="#" data-page="rekap">🗓️ Rekap Laporan Bulan</a></li>
+      <li><a href="#" data-page="belanja">💰 Belanja BOSP</a></li>
     </ul>
   </aside>
 
   <!-- KONTEN KAN PUTIH -->
   <main class="main">
-
     <!-- HALAMAN 1: STATUS KIRIM -->
     <section id="status" class="page active">
       <div class="card">
@@ -74,98 +68,22 @@
         </div>
       </div>
     </section>
-
     <!-- HALAMAN 2: LAPORAN BKU CETAK -->
-    <section id="bku" class="page">
-      <div class="card" style="max-width:700px;margin:auto">
-        <h3>📄 Cetak Laporan BKU Bulanan</h3>
-        <div class="form-grid">
-          <div><label>NPSN</label><input id="npsnBku" placeholder="Masukkan NPSN"></div>
-          <div><label>Bulan</label><select id="bulanBku"><option value="">Pilih Bulan</option><option value="JAN26">Januari</option><option value="FEB26">Februari</option><option value="MAR26">Maret</option><option value="APR26">April</option><option value="MEI26">Mei</option><option value="JUN26">Juni</option><option value="JUL26">Juli</option><option value="AGT26">Agustus</option><option value="SEP26">September</option><option value="OKT26">Oktober</option><option value="NOV26">November</option><option value="DES26">Desember</option></select></div>
-          <button id="btnCetak">CEK & CETAK</button>
-        </div>
-        <p id="infoBku" style="margin-top:12px;font-size:13px;color:#64748b"></p>
-      </div>
-    </section>
-
-    <!-- HALAMAN 3: RKAS AWAL -->
+    <section id="bku" class="page"><div class="card" style="max-width:700px;margin:auto"><h3>📄 Cetak Laporan BKU Bulanan</h3><div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end"><div><label>NPSN</label><input id="npsnBku" placeholder="Masukkan NPSN"></div><div><label>Bulan</label><select id="bulanBku"><option value="">Pilih Bulan</option><option value="JAN26">Januari</option><option value="FEB26">Februari</option><option value="MAR26">Maret</option><option value="APR26">April</option><option value="MEI26">Mei</option><option value="JUN26">Juni</option><option value="JUL26">Juli</option><option value="AGT26">Agustus</option><option value="SEP26">September</option><option value="OKT26">Oktober</option><option value="NOV26">November</option><option value="DES26">Desember</option></select></div><button id="btnCetak">CEK & CETAK</button></div><p id="infoBku" style="margin-top:12px;font-size:13px;color:#64748b"></p></div></section>
+    <!-- HALAMAN LAINNYA -->
     <section id="rkas" class="page"><div class="card"><h3>📘 Halaman Rkas Awal</h3><p>Form Rkas akan ditaruh di sini.</p></div></section>
-
-    <!-- HALAMAN 4: STATS -->
     <section id="stats" class="page"><div class="card"><h3>📈 Halaman Stats</h3><p>Grafik statistik akan ditaruh di sini.</p></div></section>
-
+    <section id="rekap" class="page"><div class="card"><h3>🗓️ Rekap Laporan Bulan</h3><p>Rekap per bulan semua sekolah akan di sini.</p></div></section>
+    <section id="belanja" class="page"><div class="card"><h3>💰 Belanja BOSP</h3><p>Form input dan rekap belanja BOSP di sini.</p></div></section>
   </main>
 
 <script>
-/* ====== PENTING: GANTI LINK CSV LU DI SINI ====== */
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ17qZcvWRGHo65k8CHYCVrt5AyqBP93CDWitjoxNddLkT85VXbqN19xkOOd3CEF5yad4l41Twpj-hG/pub?gid=102046414&output=csv";
-
-let dataSekolah = []; // Cache data biar gak fetch berkali2
-
-/* ====== NAVIGASI SIDEBAR ====== */
-document.querySelectorAll('.menu a').forEach(a=>{
-  a.onclick = e => {
-    e.preventDefault();
-    document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));
-    a.classList.add('active');
-    const page = a.dataset.page;
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById(page).classList.add('active');
-  }
-});
-
-/* ====== LOAD DATA DARI CSV ====== */
-async function loadData(){
-  if(dataSekolah.length > 0) return; // Udah ke load, skip
-  try{
-    const res = await fetch(CSV_URL);
-    const txt = await res.text();
-    const [header,...rows] = txt.trim().split('\n').map(r=>r.split(',').map(c=>c.trim()));
-    const idx = Object.fromEntries(header.map((h,i)=>[h.toUpperCase(),i])); // Anti error huruf besar/kecil
-
-    dataSekolah = rows.map(r=>({
-      npsn: r[idx['NPSN']] || '',
-      nama: r[idx['NAMA SEKOLAH']] || '',
-      kab: r[idx['KABUPATEN']] || '',
-      jan: r[idx['JAN26']] || '', feb: r[idx['FEB26']] || '', mar: r[idx['MAR26']] || '',
-      apr: r[idx['APR26']] || '', mei: r[idx['MEI26']] || '', jun: r[idx['JUN26']] || '',
-      jul: r[idx['JUL26']] || '', agt: r[idx['AGT26']] || '', sep: r[idx['SEP26']] || '',
-      okt: r[idx['OKT26']] || '', nov: r[idx['NOV26']] || '', des: r[idx['DES26']] || ''
-    }));
-    renderTabel();
-  }catch(e){
-    document.querySelector('#tabelStatus tbody').innerHTML = `<tr><td colspan="16">Gagal load data. Cek link CSV & Publish to web.</td></tr>`;
-  }
-}
-
-function renderTabel(){
-  document.getElementById('totalSekolah').textContent = dataSekolah.length;
-  const body = document.querySelector('#tabelStatus tbody');
-  body.innerHTML = dataSekolah.map((s,i)=>`
-    <tr>
-      <td>${i+1}</td><td class="kiri">${s.npsn}</td><td class="kiri">${s.nama}</td><td class="kiri">${s.kab}</td>
-      ${['jan','feb','mar','apr','mei','jun','jul','agt','sep','okt','nov','des'].map(m=>`<td>${s[m]? '<span class="ok">✅</span>' : '<span class="kosong">⏳</span>'}</td>`).join('')}
-    </tr>
-  `).join('');
-}
-
-/* ====== LOGIKA CETAK BKU ====== */
-document.getElementById('btnCetak').onclick = () => {
-  const npsn = document.getElementById('npsnBku').value.trim();
-  const bulan = document.getElementById('bulanBku').value;
-  const info = document.getElementById('infoBku');
-  if(!npsn ||!bulan) return info.textContent = 'Isi NPSN dan Bulan dulu lur.';
-
-  const sekolah = dataSekolah.find(s=>s.npsn === npsn);
-  if(!sekolah) return info.textContent = 'NPSN tidak ditemukan di data.';
-  if(!sekolah[bulan.toLowerCase()]) return info.textContent = `Data bulan ${bulan} belum diisi ⏳`;
-
-  info.textContent = `Data ditemukan ✅ Siap cetak untuk ${sekolah.nama}`;
-  // Di sini nanti kita buka halaman cetak PDF
-  alert(`Nanti buka PDF untuk ${sekolah.nama} bulan ${bulan}`);
-}
-
-/* ====== JALANIN PERTAMA KALI ====== */
+let dataSekolah = []; 
+document.querySelectorAll('.menu a').forEach(a=>{a.onclick=e=>{e.preventDefault();document.querySelectorAll('.menu a').forEach(x=>x.classList.remove('active'));a.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(a.dataset.page).classList.add('active');window.scrollTo(0,0)}});
+async function loadData(){if(dataSekolah.length>0)return;try{const res=await fetch(CSV_URL);const txt=await res.text();const[header,...rows]=txt.trim().split('\n').map(r=>r.split(',').map(c=>c.trim()));const idx=Object.fromEntries(header.map((h,i)=>[h.toUpperCase().trim(),i]));dataSekolah=rows.map(r=>({npsn:r[idx['NPSN']]||'',nama:r[idx['NAMA SEKOLAH']]||'',kab:r[idx['KABUPATEN']]||'',jan:r[idx['JAN26']]||'',feb:r[idx['FEB26']]||'',mar:r[idx['MAR26']]||'',apr:r[idx['APR26']]||'',mei:r[idx['MEI26']]||'',jun:r[idx['JUN26']]||'',jul:r[idx['JUL26']]||'',agt:r[idx['AGT26']]||'',sep:r[idx['SEP26']]||'',okt:r[idx['OKT26']]||'',nov:r[idx['NOV26']]||'',des:r[idx['DES26']]||''}));renderTabel()}catch(e){document.querySelector('#tabelStatus tbody').innerHTML=`<tr><td colspan="16">Gagal load data. Cek link CSV & Publish to web.</td></tr>`}}
+function renderTabel(){document.getElementById('totalSekolah').textContent=dataSekolah.length;const body=document.querySelector('#tabelStatus tbody');if(dataSekolah.length===0)return body.innerHTML=`<tr><td colspan="16">Data kosong</td></tr>`;body.innerHTML=dataSekolah.map((s,i)=>`<tr><td>${i+1}</td><td class="kiri">${s.npsn}</td><td class="kiri">${s.nama}</td><td class="kiri">${s.kab}</td>${['jan','feb','mar','apr','mei','jun','jul','agt','sep','okt','nov','des'].map(m=>`<td>${s[m]?'<span class="ok">✅</span>':'<span class="kosong">⏳</span>'}</td>`).join('')}</tr>`).join('')}
+document.getElementById('btnCetak').onclick=()=>{const npsn=document.getElementById('npsnBku').value.trim();const bulan=document.getElementById('bulanBku').value;const info=document.getElementById('infoBku');if(!npsn||!bulan)return info.textContent='Isi NPSN dan Bulan dulu lur.';const sekolah=dataSekolah.find(s=>s.npsn===npsn);if(!sekolah)return info.textContent='NPSN tidak ditemukan di data.';if(!sekolah[bulan.toLowerCase()])return info.textContent=`Data bulan ${bulan} belum diisi ⏳`;info.textContent=`Data ditemukan ✅ Siap cetak untuk ${sekolah.nama}`;alert(`Nanti buka PDF untuk ${sekolah.nama} bulan ${bulan}`)}
 loadData();
 </script>
 </body>
